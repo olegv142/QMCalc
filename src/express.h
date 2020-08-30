@@ -68,10 +68,10 @@ struct TagVoid {
         void* ptr;
 };
 
-class  TVar {
+class  TVarNode {
 public:
-        TVar();
-        ~TVar();
+        TVarNode();
+        ~TVarNode();
         void Stat( const char* pname, const char* pend, double value );
         void Assign( const char* pname, const char* pend, double value );
         bool Look( const char* pname, const char* pend, double & value );
@@ -83,7 +83,7 @@ private:
 
         double val;
         bool   ass;
-        TVar*  tab[LETTERS];
+        TVarNode*  tab[LETTERS];
 };
 
 class  TExpression {
@@ -136,7 +136,7 @@ protected:
         const char*  pname;
         const char*  pend;
 
-        TVar var;
+        TVarNode var;
 
         static double retVal;
         static TExpression* curExpression;

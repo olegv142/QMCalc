@@ -43,15 +43,6 @@ string TStringHandle::Str()
                 return *empty;
 }
 
-/*
-static double abs( double val )
-{
-	if( val >= 0 )
-		return val;
-	else
-		return -val;
-}
-*/
 static double ret( double val )
 {
         TExpression::retVal = val;
@@ -119,25 +110,25 @@ void print( string name, double value )
 	printf( DUMP_FORMAT, name.c_str(), value );
 }
 
-TVar::TVar()
+TVarNode::TVarNode()
 {
-        memset( this, 0, sizeof( TVar ) );
+        memset( this, 0, sizeof( TVarNode ) );
 }
 
-TVar::~TVar()
+TVarNode::~TVarNode()
 {
         for( int i = 0 ; i < LETTERS ; i++ )
                 if( tab[i] )
                         delete tab[i];
 }
 
-void TVar::Stat( const char* pname, const char* pend, double value )
+void TVarNode::Stat( const char* pname, const char* pend, double value )
 {
         assert( pname && pend );
         if( pname < pend ) {
-                TVar*& v = tab[index( *pname )];
+                TVarNode*& v = tab[index( *pname )];
                 if( !v )
-                        v = new TVar;
+                        v = new TVarNode;
                 v->Stat( pname + 1, pend, value );
         } else if( !ass ) {
                 ass = true;
@@ -145,13 +136,13 @@ void TVar::Stat( const char* pname, const char* pend, double value )
         }
 }
 
-void TVar::Assign( const char* pname, const char* pend, double value )
+void TVarNode::Assign( const char* pname, const char* pend, double value )
 {
         assert( pname && pend );
         if( pname < pend ) {
-                TVar*& v = tab[index( *pname )];
+                TVarNode*& v = tab[index( *pname )];
                 if( !v )
-                        v = new TVar;
+                        v = new TVarNode;
                 v->Assign( pname + 1, pend, value );
         } else {
                 ass = true;
@@ -159,11 +150,11 @@ void TVar::Assign( const char* pname, const char* pend, double value )
         }
 }
 
-bool TVar::Look( const char* pname, const char* pend, double & value )
+bool TVarNode::Look( const char* pname, const char* pend, double & value )
 {
         assert( pname && pend );
         if( pname < pend ) {
-                TVar* v = tab[index( *pname )];
+                TVarNode* v = tab[index( *pname )];
                 if( !v )
                         return false;
                 else
@@ -174,7 +165,7 @@ bool TVar::Look( const char* pname, const char* pend, double & value )
         }
 }
 
-int TVar::index( char c )
+int TVarNode::index( char c )
 {
         if( IsDigit( c ) )
                 return c - '0';
@@ -183,7 +174,7 @@ int TVar::index( char c )
         return c - 'A' + 10;
 }
 
-char TVar::letter( int index )
+char TVarNode::letter( int index )
 {
         assert( index >= 0 && index < LETTERS );
         if( index < 10 )
@@ -192,7 +183,7 @@ char TVar::letter( int index )
                 return index + 'A' - 10;
 }
 
-void TVar::Dump( string prefix )
+void TVarNode::Dump( string prefix )
 {
         if( ass )
                 print( prefix, val );
