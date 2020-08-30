@@ -2,7 +2,7 @@
 
 #include "errs.h"
 
-#define LETTERS  11+'Z'-'A'
+#define LETTERS  12+'Z'-'A'
 #define FUNCTIONS       64
 #define FUN_NAME_SIZE    9
 #define DUMP_LENGTH     24

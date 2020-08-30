@@ -169,9 +169,11 @@ int TVarNode::index( char c )
 {
         if( IsDigit( c ) )
                 return c - '0';
+        if( c == '_' )
+                return 10;
         c = ToUpper( c );
         check( c >= 'A' && c <= 'Z', EXPR_INVVAR );
-        return c - 'A' + 10;
+        return c - 'A' + 11;
 }
 
 char TVarNode::letter( int index )
@@ -179,8 +181,10 @@ char TVarNode::letter( int index )
         assert( index >= 0 && index < LETTERS );
         if( index < 10 )
                 return index + '0';
+        else if( index == 10 )
+                return '_';
         else
-                return index + 'A' - 10;
+                return index + 'A' - 11;
 }
 
 void TVarNode::Dump( string prefix )
@@ -220,7 +224,7 @@ void   TExpression::Stat( const char* pname, const char* pend, double value )
 {
         assert( pname && pend );
         check( pname < pend, EXPR_INVVAR );
-        check( IsAlpha( *pname ), EXPR_INVVAR );
+        check( IsFirstLetter( *pname ), EXPR_INVVAR );
         var.Stat( pname, pend, value );
 }
 
@@ -228,7 +232,7 @@ void   TExpression::Assign( const char* pname, const char* pend, double value )
 {
         assert( pname && pend );
         check( pname < pend, EXPR_INVVAR );
-        check( IsAlpha( *pname ), EXPR_INVVAR );
+        check( IsFirstLetter( *pname ), EXPR_INVVAR );
         var.Assign( pname, pend, value );
 }
 
@@ -236,7 +240,7 @@ double TExpression::Look( const char* pname, const char* pend )
 {
         assert( pname && pend );
         check( pname < pend, EXPR_INVVAR );
-        check( IsAlpha( *pname ), EXPR_INVVAR );
+        check( IsFirstLetter( *pname ), EXPR_INVVAR );
         double val = 0;
         if( !var.Look( pname, pend, val ) )
                 if( *pend )
