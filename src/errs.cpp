@@ -38,9 +38,9 @@ const char* LastErrorText()
 	textBuffer[TEXT_BUFF_LEN] = 0;
 	if( const ErrorDescriptor* lastError = ErrorDescriptor::LastError() )
 		if( const char* lastErrorType = lastError->Type() )
-			if( const char* lastErrorParam = lastError->Param() ) {
-				snprintf( textBuffer, TEXT_BUFF_LEN, "%s %s", lastErrorType, lastErrorParam );
-			} else if( strlen( lastErrorType ) < TEXT_BUFF_LEN )
+			if( const char* lastErrorParam = lastError->Param() )
+				snprintf( textBuffer, TEXT_BUFF_LEN, "%s: %s", lastErrorType, lastErrorParam );
+			else
 				snprintf( textBuffer, TEXT_BUFF_LEN, "%s", lastErrorType );
 	return textBuffer;
 }
