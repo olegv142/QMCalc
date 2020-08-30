@@ -14,15 +14,11 @@ ErrorCode( PP_RECURSION );
 ErrorCode( PP_STRING );
 
 enum PPTokenValue {
-FOR, MACRO, FOR_VAR, MACRO_VAR, MACRO_COND, TRUNC, ENDM
+MACRO, MACRO_VAR, MACRO_COND, TRUNC, ENDM
 };
 
 //---------------------------------------------------------------------------
-//   FOR         #Alpha( mask, expr )
 //   MACRO       #( name, arg1, arg2, .. )
-//   FOR_VAR     #Alpha[]
-//               #Alpha[ left ]
-//               #Alpha[ left, right ]
 //   MACRO_VAR   #Num
 //   MACRO_COND  #?Num( true )
 //               #?Num( , false )
@@ -51,8 +47,6 @@ protected:
 
 	PPTokenValue curToken;
 	int tindex;
-	int tleft;
-	int tright;
 	int argc;
 	TCharBuffer* argv[10];
 

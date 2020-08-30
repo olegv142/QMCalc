@@ -76,15 +76,6 @@ PPTokenValue TPreprocessor::lookToken()
 		tindex = *p - '0';
 		return curToken = MACRO_VAR;
 	}
-	if( IsAlpha( *p ) ) {
-		tindex = ToUpper( *p ) - 'A';
-		p = next( p );
-		if( *p == '(' )
-			return curToken = FOR;
-		if( *p == '[' )
-			return curToken = FOR_VAR;
-		Signal( PP_SYNTAX );
-	}
 	Signal( PP_SYNTAX );
 	return ENDM;
 }
@@ -99,22 +90,9 @@ void TPreprocessor::getToken()
 	assert( *p == '#' );
 	p = next( p );
 	switch( curToken ) {
-		case FOR :
-			p = next( p );
-			p = argScan( p );
-			check( argc == 2, PP_SYNTAX );
-			check( argv[0] && argv[1], PP_SYNTAX );
-			break;
 		case MACRO :
 			p = argScan( p );
 			check( argv[0], PP_SYNTAX );
-			break;
-		case FOR_VAR :
-			p = next( p );
-			sscanf( p, "[ \t\r\n%n%d \t\r\n%n, \t\r\n%d \t\r\n%n",
-						&n, &tleft, &n, &tright, &n );
-			p += n;
-			check( *p == ']', PP_SYNTAX );
 			break;
 		case MACRO_COND :
 			p = next( p );
@@ -152,8 +130,6 @@ void TPreprocessor::init()
 		argv[i] = 0;
 	curToken = ENDM;
 	tindex = 0;
-	tleft  = 0;
-	tright = -1;
 	argc   = 0;
 }
 
@@ -166,8 +142,6 @@ void TPreprocessor::clear()
 		}
 	curToken = ENDM;
 	tindex = 0;
-	tleft  = 0;
-	tright = -1;
 	argc   = 0;
 }
 
