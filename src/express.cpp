@@ -122,20 +122,6 @@ TVarNode::~TVarNode()
                         delete tab[i];
 }
 
-void TVarNode::Stat( const char* pname, const char* pend, double value )
-{
-        assert( pname && pend );
-        if( pname < pend ) {
-                TVarNode*& v = tab[index( *pname )];
-                if( !v )
-                        v = new TVarNode;
-                v->Stat( pname + 1, pend, value );
-        } else if( !ass ) {
-                ass = true;
-                val = value;
-        }
-}
-
 void TVarNode::Assign( const char* pname, const char* pend, double value )
 {
         assert( pname && pend );
@@ -220,14 +206,6 @@ double TExpression::Calc()
         return e;
 }
 
-void   TExpression::Stat( const char* pname, const char* pend, double value )
-{
-        assert( pname && pend );
-        check( pname < pend, EXPR_INVVAR );
-        check( IsFirstLetter( *pname ), EXPR_INVVAR );
-        var.Stat( pname, pend, value );
-}
-
 void   TExpression::Assign( const char* pname, const char* pend, double value )
 {
         assert( pname && pend );
@@ -248,17 +226,6 @@ double TExpression::Look( const char* pname, const char* pend )
                 else
                         Signal( EXPR_NOTASS, pname );
         return val;
-}
-
-void   TExpression::stat( const char *name, double value )
-{
-        Stat( name, strchr( name, 0 ), value );
-}
-
-void   TExpression::stat( const char name, double value )
-{
-        char s[] = { name, 0 };
-        Stat( s, s + 1, value );
 }
 
 void   TExpression::assign( const char *name, double value )
@@ -327,11 +294,7 @@ TokenValue TExpression::getToken()
                                 } else
                                         return curToken = ASSIGN;
                         case ':' :
-                                if( *++ptr == '=' ) {
-                                        ptr++;
-                                        return curToken = STAT;
-                                } else
-                                        return curToken = ELSE;
+                                return curToken = ELSE;
                         case '!' :
                                 if( *++ptr == '=' ) {
                                         ptr++;
@@ -560,12 +523,7 @@ double TExpression::prim()
                         return val;
                 case VAR :
                         next = getToken();
-                        if( next == STAT ) {
-                                getToken();
-                                val = log();
-                                Stat( name, end, val );
-                                return val;
-                        } else if( next == ASSIGN ) {
+                        if( next == ASSIGN ) {
                                 getToken();
                                 val = log();
                                 Assign( name, end, val );

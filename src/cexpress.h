@@ -8,7 +8,6 @@ public:
 		: TExpression( expr ) { endPtr = end; parent = par; }
 	~TCompoundExpression() { curExpression = parent; }
 
-	void   Stat( const char* pname, const char* pend, double value );
 	void   Assign( const char* pname, const char* pend, double value );
 	double Look( const char* pname, const char* pend );
 

@@ -50,7 +50,7 @@ typedef double ( *FunctionPointer )( double );
 
 enum TokenValue {
         END, NUMBER, VAR, FUNCTION, EFUNCTION, EXPRESS, NAME, CONTEXT,
-        EQ, NOT, MOR, LES, NOTEQ, MOREQ, LESEQ, STAT, AND = '&', OR = '|',
+        EQ, NOT, MOR, LES, NOTEQ, MOREQ, LESEQ, AND = '&', OR = '|',
         PLUS = '+', MINUS = '-', MUL = '*', DIV = '/', MOD = '%', POW = '^',
         ASSIGN = '=', LP = '(', RP = ')', COL = ',', LOOP = '$',
         SEM = ';', IF = '?', ELSE = ':', WHILE = '@', CONCAT = '"'
@@ -72,7 +72,6 @@ class  TVarNode {
 public:
         TVarNode();
         ~TVarNode();
-        void Stat( const char* pname, const char* pend, double value );
         void Assign( const char* pname, const char* pend, double value );
         bool Look( const char* pname, const char* pend, double & value );
         void Dump( string prefix );
@@ -96,12 +95,9 @@ public:
         void SetExpression( const char* expr ) { expression = expr; }
 
         virtual double Calc();
-        virtual void   Stat( const char* pname, const char* pend, double value );
         virtual void   Assign( const char* pname, const char* pend, double value );
         virtual double Look( const char* pname, const char* pend );
 
-        void   stat( const char *name, double value );
-        void   stat( const char name, double value );
         void   assign( const char *name, double value );
         void   assign( const char name, double value );
         double look( const char *name );
@@ -220,7 +216,6 @@ inline char ToUpper( unsigned char c )
 //      'string'
 //      var
 //      var = log
-//      var := log
 //      - prim
 //      ( log )
 //      function( log )

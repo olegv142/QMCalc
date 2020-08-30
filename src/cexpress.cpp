@@ -1,14 +1,5 @@
 #include "cexpress.h"
 
-void   TCompoundExpression::Stat( const char* pname, const char* pend, double value )
-{
-        assert( pname );
-        if( parent && *pname == '_' )
-                parent->Stat( ++pname, pend, value );
-        else
-                TExpression::Stat( pname, pend, value );
-}
-
 void   TCompoundExpression::Assign( const char* pname, const char* pend, double value )
 {
         assert( pname );
