@@ -1,9 +1,9 @@
-#include "cexpress.h"
+#include "express.h"
 #include "preproc.h"
 
 int main(int argc, char* argv[])
 {
-	TCompoundExpression calc; 
+	TExpression calc; 
 	for( int i = 1 ; i < argc ; i++ ) {
 		TMacroProcessor pp( argv[i] );
 		calc.SetExpression( pp.Run() );

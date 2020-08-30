@@ -175,10 +175,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\cexpress.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\chbuff.cpp"
 				>
 			</File>
@@ -204,10 +200,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath="..\src\cexpress.h"
-				>
-			</File>
 			<File
 				RelativePath="..\src\chbuff.h"
 				>
