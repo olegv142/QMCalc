@@ -8,40 +8,37 @@ typedef const char* errorType;
 
 class ErrorDescriptor {
 public:
-	ErrorDescriptor( const ErrorDescriptor& err )
-		: type( err.type ), param( err.param )
-	{
-		lastError = this;
-	}
 	ErrorDescriptor( const errorType Type )
 		: type(Type)
-	{
-		lastError = this;
-	}
+	{}
 	ErrorDescriptor( const errorType Type, const char* Param )
 		: type(Type), param(Param)
-	{
-		lastError = this;
-	}
+	{}
 	ErrorDescriptor( const errorType Type, const string Param )
 		: type(Type), param(Param)
+	{}
+	ErrorDescriptor& operator = (const ErrorDescriptor& e)
 	{
-		lastError = this;
-	}
-	virtual ~ErrorDescriptor() {
-		if( lastError == this ) lastError = 0;
+		type = e.type;
+		param = e.param;
+		return *this;
 	}
 
 	virtual const char* Title() const { return "Application Error"; }
 	virtual errorType   Type()  const { return type; }
 	virtual const char* Param() const { return param.c_str(); }
-	static const ErrorDescriptor* LastError();
-	
-private:
-	ErrorDescriptor();
-	ErrorDescriptor& operator=(ErrorDescriptor&);
 
-	static ErrorDescriptor* lastError;
+	static const ErrorDescriptor& LastError() {
+		return lastError;
+	}
+	static void Raise(const ErrorDescriptor& e) {
+		lastError = e;
+		throw e;
+	}
+private:
+	ErrorDescriptor() : type(NULL) {}
+
+	static ErrorDescriptor lastError;
 
 	errorType type;
 	string param;
@@ -68,20 +65,19 @@ const char* BuildAssertMessage( const char* file, int line );
 #define _catch catch( ErrorDescriptor& )
 
 inline void Signal( const char* error ) {
-	ErrorDescriptor ed( error );
-	throw( ed );
+	ErrorDescriptor::Raise( ErrorDescriptor( error ) );
 }
 
 inline void Signal( const char* error, const char* msgParam ) {
-	throw( ErrorDescriptor( error, msgParam ) );
+	ErrorDescriptor::Raise( ErrorDescriptor( error, msgParam ) );
 }
 
 inline void Signal( const char* error, const string msgParam ) {
-	throw( ErrorDescriptor( error, msgParam ) );
+	ErrorDescriptor::Raise( ErrorDescriptor( error, msgParam ) );
 }
 
 inline errorType lastError() {
-	return ErrorDescriptor::LastError()->Type();
+	return ErrorDescriptor::LastError().Type();
 }
 
 ErrorCode(INTERNAL_ERROR)
@@ -89,9 +85,4 @@ ErrorCode(NOGMEM)
 ErrorCode(NOLMEM)
 ErrorCode(NOSMEM)
 ErrorCode(NOMEM)
-
-inline const ErrorDescriptor* ErrorDescriptor::LastError() { 
-	assert( lastError );
-	return lastError; 
-}
 

@@ -15,7 +15,7 @@ DefineErrorMess( NOMEM,  "Not enougth memory" )
 
 #define snprintf _snprintf_s
 
-ErrorDescriptor* ErrorDescriptor::lastError = 0;
+ErrorDescriptor ErrorDescriptor::lastError;
 
 static void _terminate()
 {
@@ -26,7 +26,7 @@ static terminate_function old_handler = set_terminate( _terminate );
 
 const char* LastErrorTitle() 
 { 
-	if( const char* lastErrorTitle = ErrorDescriptor::LastError()->Title() )
+	if( const char* lastErrorTitle = ErrorDescriptor::LastError().Title() )
 		return lastErrorTitle; 
 	else
 		return "Unregistered Error";
@@ -34,21 +34,21 @@ const char* LastErrorTitle()
 
 const char* LastErrorText()  
 { 
+	const ErrorDescriptor& lastError = ErrorDescriptor::LastError();
 	static char textBuffer[TEXT_BUFF_LEN+1];
 	textBuffer[TEXT_BUFF_LEN] = 0;
-	if( const ErrorDescriptor* lastError = ErrorDescriptor::LastError() )
-		if( const char* lastErrorType = lastError->Type() )
-			if( const char* lastErrorParam = lastError->Param() )
-				snprintf( textBuffer, TEXT_BUFF_LEN, "%s: %s", lastErrorType, lastErrorParam );
-			else
-				snprintf( textBuffer, TEXT_BUFF_LEN, "%s", lastErrorType );
+	if( const char* lastErrorType = lastError.Type() )
+		if( const char* lastErrorParam = lastError.Param() )
+			snprintf( textBuffer, TEXT_BUFF_LEN, "%s : %s", lastErrorType, lastErrorParam );
+		else
+			snprintf( textBuffer, TEXT_BUFF_LEN, "%s", lastErrorType );
 	return textBuffer;
 }
 
 const char* LastErrorParam() 
 { 
-	if( const ErrorDescriptor* lastError = ErrorDescriptor::LastError() )
-		if( const char* lastErrorParam = lastError->Param() ) 
+	const ErrorDescriptor& lastError = ErrorDescriptor::LastError();
+	if( const char* lastErrorParam = lastError.Param() ) 
 		return lastErrorParam; 
 	return "";
 } 
