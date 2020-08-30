@@ -21,8 +21,6 @@ ErrorCode( EXPR_UNTN );
 ErrorCode( EXPR_EXPN );
 ErrorCode( EXPR_FUNC );
 ErrorCode( EXPR_SYNTAX );
-ErrorCode( EXPR_RET );
-ErrorCode( EXPR_BRK );
 ErrorCode( EXPR_CHK );
 ErrorCode( EXPR_ERR );
 ErrorCode( EXPR_STR );
@@ -43,7 +41,7 @@ public:
 	string Str();
 private:
 	StringHandle handle;
-		static string* empty;
+	static string* empty;
 };
 
 typedef double ( *FunctionPointer )( double );
@@ -108,10 +106,6 @@ public:
 
 	string ErrorDump();
 
-	static TExpression* CurExpression();
-
-	static void RegisterFunction( char* name, FunctionPointer ptr );
-
 protected:
 	virtual FunctionPointer getFunction( const char* pname, const char* pend );
 	virtual double expr();
@@ -122,8 +116,6 @@ protected:
 
 	string tokenName();
 
-	static void registerTag( TagVoid* array, char* name, void* ptr );
-
 	const char*  expression;
 
 	TokenValue   curToken;
@@ -133,9 +125,6 @@ protected:
 	const char*  pend;
 
 	TVarNode var;
-
-	static double retVal;
-	static TExpression* curExpression;
 
 private:
 	char   nextChar();

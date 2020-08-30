@@ -14,8 +14,6 @@ DefineErrorMess( EXPR_UNTN, "Unterminated name" );
 DefineErrorMess( EXPR_EXPN, "Name expected" );
 DefineErrorMess( EXPR_FUNC, "Unknown function" );
 DefineErrorMess( EXPR_SYNTAX, "Expression syntax error" );
-DefineErrorMess( EXPR_RET, "Return encounted" );
-DefineErrorMess( EXPR_BRK, "Break encounted" );
 DefineErrorMess( EXPR_CHK, "Checking false" );
 DefineErrorMess( EXPR_ERR, "User defined" );
 DefineErrorMess( EXPR_STR, "String is empty" );
@@ -43,20 +41,6 @@ string TStringHandle::Str()
 		return *empty;
 }
 
-static double ret( double val )
-{
-	TExpression::retVal = val;
-	Signal( EXPR_RET );
-	return val;
-}
-
-static double brk( double val )
-{
-	TExpression::retVal = val;
-	Signal( EXPR_BRK );
-	return val;
-}
-
 static double chk( double val )
 {
 	check( val, EXPR_CHK );
@@ -71,29 +55,20 @@ static double err( double str )
 	return str;
 }
 
-static double dump( double val )
-{
-	TExpression::CurExpression()->Dump();
-	return val;
-}
-
 static function funList[FUNCTIONS] = {
 { "ABS",   4, abs },
 { "ACOS",  0, acos },
 { "ASIN",  0, asin },
 { "ATAN",  0, atan },
-{ "BRK",   1, brk },
 { "COS",   4, cos },
 { "CH",    0, cosh },
 { "CHK",   0, chk },
 { "CEIL",  0, ceil },
-{ "DUMP",  1, dump },
 { "EXP",   2, exp },
 { "ERR",   0, err },
 { "FLOOR", 1, floor },
 { "LN",    2, log },
 { "LG",    0, log10 },
-{ "RET",   1, ret },
 { "SIN",   3, sin },
 { "SH",    0, sinh },
 { "SQRT",  0, sqrt },
@@ -101,9 +76,6 @@ static function funList[FUNCTIONS] = {
 { "TH",    0, tanh },
 { "",      1, 0 }
 };
-
-double TExpression::retVal = 0;
-TExpression* TExpression::curExpression = 0;
 
 void print( string name, double value )
 {
@@ -196,7 +168,6 @@ double TExpression::Calc()
 	double e = 0;
 	if( !( ptr = expression ) )
 		return e;
-	curExpression = this;
 	do {
 		getToken();
 		e = expr();
@@ -248,12 +219,6 @@ double TExpression::look( const char name )
 {
 	char s[] = { name, 0 };
 	return Look( s, s + 1 );
-}
-
-TExpression* TExpression::CurExpression()
-{
-	assert( curExpression );
-	return curExpression;
 }
 
 char TExpression::nextChar()
@@ -568,34 +533,6 @@ FunctionPointer TExpression::getFunction( const char* pname, const char* pend )
 					return 0;
 			}
 	return 0;
-}
-
-void TExpression::RegisterFunction( char* name, FunctionPointer ptr )
-{
-	registerTag( (TagVoid*)funList, name, ptr );
-}
-
-void TExpression::registerTag( TagVoid* array, char* name, void* ptr )
-{
-	int i, j, len = strlen( name );
-	assert( len && len < FUN_NAME_SIZE );
-	for( i = 0 ; array[i].ptr ; i += array[i].shift )
-		if( array[i].name[0] == ToUpper( name[0] ) )
-			break;
-	if( !array[i].ptr ) {
-		assert( i + 1 < FUNCTIONS );
-		array[i+1] = array[i];
-	} else {
-		assert( !array[FUNCTIONS-1].shift );
-		for( int j = FUNCTIONS-1 ; j > i ; j-- )
-			array[j] = array[j-1];
-		array[i+1].shift = 0;
-		array[i].shift++;
-	}
-	for( j = 0 ; j < len ; j++ )
-		array[i].name[j] = ToUpper( name[j] );
-	array[i].name[j] = 0;
-	array[i].ptr = ptr;
 }
 
 string TExpression::ErrorDump()
