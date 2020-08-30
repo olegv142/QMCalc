@@ -28,122 +28,122 @@ ErrorCode( EXPR_ERR );
 ErrorCode( EXPR_STR );
 
 union StringHandle {
-        struct {
-                string* ptr;
-                string* id;
-        } str;
-        double   val;
+	struct {
+		string* ptr;
+		string* id;
+	} str;
+	double   val;
 };
 
 class  TStringHandle {
 public:
-        TStringHandle( double v ) { handle.val = v; }
-        TStringHandle( string s );
-        operator double() { return handle.val; }
-        string Str();
+	TStringHandle( double v ) { handle.val = v; }
+	TStringHandle( string s );
+	operator double() { return handle.val; }
+	string Str();
 private:
-        StringHandle handle;
+	StringHandle handle;
 		static string* empty;
 };
 
 typedef double ( *FunctionPointer )( double );
 
 enum TokenValue {
-        END, NUMBER, VAR, FUNCTION, EFUNCTION, EXPRESS, NAME, CONTEXT,
-        EQ, NOT, MOR, LES, NOTEQ, MOREQ, LESEQ, AND = '&', OR = '|',
-        PLUS = '+', MINUS = '-', MUL = '*', DIV = '/', MOD = '%', POW = '^',
-        ASSIGN = '=', LP = '(', RP = ')', COL = ',', LOOP = '$',
-        SEM = ';', IF = '?', ELSE = ':', WHILE = '@', CONCAT = '"'
+	END, NUMBER, VAR, FUNCTION, EFUNCTION, EXPRESS, NAME, CONTEXT,
+	EQ, NOT, MOR, LES, NOTEQ, MOREQ, LESEQ, AND = '&', OR = '|',
+	PLUS = '+', MINUS = '-', MUL = '*', DIV = '/', MOD = '%', POW = '^',
+	ASSIGN = '=', LP = '(', RP = ')', COL = ',', LOOP = '$',
+	SEM = ';', IF = '?', ELSE = ':', WHILE = '@', CONCAT = '"'
 };
 
 struct function {
-        char name[FUN_NAME_SIZE];
-        int shift;
-        FunctionPointer ptr;
+	char name[FUN_NAME_SIZE];
+	int shift;
+	FunctionPointer ptr;
 };
 
 struct TagVoid {
-        char name[FUN_NAME_SIZE];
-        int shift;
-        void* ptr;
+	char name[FUN_NAME_SIZE];
+	int shift;
+	void* ptr;
 };
 
 class  TVarNode {
 public:
-        TVarNode();
-        ~TVarNode();
-        void Assign( const char* pname, const char* pend, double value );
-        bool Look( const char* pname, const char* pend, double & value );
-        void Dump( string prefix );
+	TVarNode();
+	~TVarNode();
+	void Assign( const char* pname, const char* pend, double value );
+	bool Look( const char* pname, const char* pend, double & value );
+	void Dump( string prefix );
 
 private:
-        int  index( char c );
-        char letter( int index );
+	int  index( char c );
+	char letter( int index );
 
-        double val;
-        bool   ass;
-        TVarNode*  tab[LETTERS];
+	double val;
+	bool   ass;
+	TVarNode*  tab[LETTERS];
 };
 
 class  TExpression {
 friend double ret( double );
 friend double brk( double );
 public:
-        TExpression( const char* expr = 0 );
+	TExpression( const char* expr = 0 );
 	virtual ~TExpression() {}
 
-        void SetExpression( const char* expr ) { expression = expr; }
+	void SetExpression( const char* expr ) { expression = expr; }
 
-        virtual double Calc();
-        virtual void   Assign( const char* pname, const char* pend, double value );
-        virtual double Look( const char* pname, const char* pend );
+	virtual double Calc();
+	virtual void   Assign( const char* pname, const char* pend, double value );
+	virtual double Look( const char* pname, const char* pend );
 
-        void   assign( const char *name, double value );
-        void   assign( const char name, double value );
-        double look( const char *name );
-        double look( const char name );
+	void   assign( const char *name, double value );
+	void   assign( const char name, double value );
+	double look( const char *name );
+	double look( const char name );
 
-        virtual void Dump( string prefix = "" )
-                { var.Dump( prefix ); }
+	virtual void Dump( string prefix = "" )
+		{ var.Dump( prefix ); }
 
-        string ErrorDump();
+	string ErrorDump();
 
-        static TExpression* CurExpression();
+	static TExpression* CurExpression();
 
-        static void RegisterFunction( char* name, FunctionPointer ptr );
+	static void RegisterFunction( char* name, FunctionPointer ptr );
 
 protected:
-        virtual FunctionPointer getFunction( const char* pname, const char* pend );
-        virtual double expr();
-        virtual double prim();
+	virtual FunctionPointer getFunction( const char* pname, const char* pend );
+	virtual double expr();
+	virtual double prim();
 
-        double     log();
-        TokenValue getToken();
+	double     log();
+	TokenValue getToken();
 
-        string tokenName();
+	string tokenName();
 
-        static void registerTag( TagVoid* array, char* name, void* ptr );
+	static void registerTag( TagVoid* array, char* name, void* ptr );
 
-        const char*  expression;
+	const char*  expression;
 
-        TokenValue   curToken;
-        double       tvalue;
-        const char*  ptr;
-        const char*  pname;
-        const char*  pend;
+	TokenValue   curToken;
+	double       tvalue;
+	const char*  ptr;
+	const char*  pname;
+	const char*  pend;
 
-        TVarNode var;
+	TVarNode var;
 
-        static double retVal;
-        static TExpression* curExpression;
+	static double retVal;
+	static TExpression* curExpression;
 
 private:
-        char   nextChar();
+	char   nextChar();
 
-        double comp();
-        double add();
-        double mul();
-        double pow();
+	double comp();
+	double add();
+	double mul();
+	double pow();
 };
 
 inline bool IsDigit( unsigned char c )

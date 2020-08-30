@@ -33,42 +33,42 @@ FOR, MACRO, FOR_VAR, MACRO_VAR, MACRO_COND, TRUNC, ENDM
 class  TPreprocessor : protected TCharBuffer {
 friend class TMacroProcessor;
 public:
-        TPreprocessor() { init(); }
-        TPreprocessor( const char *str ) : TCharBuffer( str ) { init(); }
+	TPreprocessor() { init(); }
+	TPreprocessor( const char *str ) : TCharBuffer( str ) { init(); }
 
-        char* Run();
+	char* Run();
 
-        TCharBuffer::Save;
-        TCharBuffer::Text;
-        string ErrorDump();
+	TCharBuffer::Save;
+	TCharBuffer::Text;
+	string ErrorDump();
 
 protected:
-        virtual char* run() { return this->Text(); }
+	virtual char* run() { return this->Text(); }
 
-        PPTokenValue lookToken();
-        void getToken();
-        void skipToken();
+	PPTokenValue lookToken();
+	void getToken();
+	void skipToken();
 
-        PPTokenValue curToken;
-        int tindex;
-        int tleft;
-        int tright;
-        int argc;
-        TCharBuffer* argv[10];
+	PPTokenValue curToken;
+	int tindex;
+	int tleft;
+	int tright;
+	int argc;
+	TCharBuffer* argv[10];
 
-        TPreprocessor* parent;
+	TPreprocessor* parent;
 
 private:
-        void  init();
-        void  clear();
-        char* argScan( char *p );
+	void  init();
+	void  clear();
+	char* argScan( char *p );
 };
 
 class  TMacroProcessor : public TPreprocessor {
 public:
-        TMacroProcessor( const char *str ) : TPreprocessor( str ) {}
-        TMacroProcessor( TMacroProcessor* Parent );
+	TMacroProcessor( const char *str ) : TPreprocessor( str ) {}
+	TMacroProcessor( TMacroProcessor* Parent );
 protected:
-        char* run();
+	char* run();
 };
 
