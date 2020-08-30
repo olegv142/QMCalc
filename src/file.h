@@ -8,8 +8,6 @@
 #include <limits.h>
 #include "stdint.h"
 
-#define VOID_HANDLE                     UINT_MAX // void virtual handle
-
 ErrorCode( DE_NOFILE )
 ErrorCode( DE_NOPATH )
 ErrorCode( DE_NOOPEN )
@@ -31,10 +29,10 @@ static  uint16_t getWord( int handle );
 static  uint32_t getDword( int handle );
 
 // Write functions: 
-static  void    write( int handle, void *buf, unsigned nBytes );
-static  void    put( int handle, uint8_t v );
-static  void    put( int handle, uint16_t v );
-static  void    put( int handle, uint32_t v );
+static  void write( int handle, void *buf, unsigned nBytes );
+static  void put( int handle, uint8_t v );
+static  void put( int handle, uint16_t v );
+static  void put( int handle, uint32_t v );
 
 // Miscellanea:
 static  long seek( int handle, long offset, int fromWhere );
@@ -46,32 +44,32 @@ static  bool eof( int handle );
 
 inline  void File::close( int handle )
 {
-        ::_close( handle );
+	_close( handle );
 }
 
 inline  long File::seek( int handle, long offset, int fromWhere )
 {
-        return _lseek( handle, offset, fromWhere );
+	return _lseek( handle, offset, fromWhere );
 }
 
 inline  long File::tell( int handle )
 {
-        return ::_tell( handle );
+	return _tell( handle );
 }
 
 inline  long File::length( int handle )
 {
-        return _filelength( handle );
+	return _filelength( handle );
 }
 
 inline  void File::chsize( int handle, long newSize )
 {
-        ::_chsize( handle, newSize );
+	_chsize( handle, newSize );
 }
 
 inline  bool File::eof( int handle )
 {
-        return ::_eof( handle ) != 0;
+	return _eof( handle ) != 0;
 }
 
 // Read functions:
@@ -80,39 +78,39 @@ inline  bool File::eof( int handle )
 //
 inline uint8_t File::getByte( int handle )
 {
-        uint8_t ret;
-        readRecord( handle, &ret, sizeof(ret) );
-        return ret;
+	uint8_t ret;
+	readRecord( handle, &ret, sizeof(ret) );
+	return ret;
 }
 
 inline uint16_t File::getWord( int handle )
 {
-        uint16_t ret;
-        readRecord( handle, &ret, sizeof(ret) );
-        return ret;
+	uint16_t ret;
+	readRecord( handle, &ret, sizeof(ret) );
+	return ret;
 }
 
 inline uint32_t File::getDword( int handle )
 {
-        uint32_t ret;
-        readRecord( handle, &ret, sizeof(ret) );
-        return ret;
+	uint32_t ret;
+	readRecord( handle, &ret, sizeof(ret) );
+	return ret;
 }
 
 // These functions write Byte, Word, and DWORD accordingly
 //
 inline void File::put( int handle, uint8_t b )
 {
-        write( handle, &b, sizeof(b) );
+	write( handle, &b, sizeof(b) );
 }
 
 inline void File::put( int handle, uint16_t w )
 {
-        write( handle, &w, sizeof(w) );
+	write( handle, &w, sizeof(w) );
 }
 
 inline void File::put( int handle, uint32_t d )
 {
-        write( handle, &d, sizeof(d) );
+	write( handle, &d, sizeof(d) );
 }
 
