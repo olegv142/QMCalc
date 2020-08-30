@@ -17,6 +17,13 @@ DefineErrorMess( NOMEM,  "Not enougth memory" )
 
 ErrorDescriptor* ErrorDescriptor::lastError = 0;
 
+static void _terminate()
+{
+	Failure();
+} 
+
+static terminate_function old_handler = set_terminate( _terminate );
+
 const char* LastErrorTitle() 
 { 
 	if( const char* lastErrorTitle = ErrorDescriptor::LastError()->Title() )
@@ -67,13 +74,4 @@ void Warning()
 	puts( LastErrorText() );
 }
 
-static void _terminate()
-{
-	Failure();
-} 
-
-void ErrorDescriptor::set_terminate()
-{
-	static terminate_function old_handler = ::set_terminate( _terminate );
-}
 

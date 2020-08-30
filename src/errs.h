@@ -16,19 +16,16 @@ public:
 	ErrorDescriptor( const errorType Type )
 		: type(Type)
 	{
-		set_terminate();
 		lastError = this;
 	}
 	ErrorDescriptor( const errorType Type, const char* Param )
 		: type(Type), param(Param)
 	{
-		set_terminate();
 		lastError = this;
 	}
 	ErrorDescriptor( const errorType Type, const string Param )
 		: type(Type), param(Param)
 	{
-		set_terminate();
 		lastError = this;
 	}
 	virtual ~ErrorDescriptor() {
@@ -44,7 +41,6 @@ private:
 	ErrorDescriptor();
 	ErrorDescriptor& operator=(ErrorDescriptor&);
 
-	static void set_terminate();
 	static ErrorDescriptor* lastError;
 
 	errorType type;
