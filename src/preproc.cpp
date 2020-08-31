@@ -2,6 +2,8 @@
 #include "express.h"
 #include <stdio.h>
 
+#include "compat.h"
+
 DefineErrorMess( PP_SYNTAX, "Preprocessor syntax error" );
 DefineErrorMess( PP_RPREQ, "Preprocessor missing )" );
 DefineErrorMess( PP_ARGS, "Too many macro arguments" );
@@ -79,8 +81,6 @@ PPTokenValue TPreprocessor::lookToken()
 	Signal( PP_SYNTAX );
 	return ENDM;
 }
-
-#define sscanf sscanf_s
 
 void TPreprocessor::getToken()
 {

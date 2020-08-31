@@ -4,6 +4,8 @@
 #include <string.h>
 #include <eh.h>
 
+#include "compat.h"
+
 DefineErrorMess( INTERNAL_ERROR, "Internal error" )
 DefineErrorMess( NOGMEM, "Not enougth global memory" )
 DefineErrorMess( NOLMEM, "Not enougth local memory" )
@@ -12,8 +14,6 @@ DefineErrorMess( NOMEM,  "Not enougth memory" )
 
 #define ASSERT_BUFF_LEN 128
 #define TEXT_BUFF_LEN   128
-
-#define snprintf _snprintf_s
 
 ErrorDescriptor ErrorDescriptor::lastError;
 
