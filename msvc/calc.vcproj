@@ -4,7 +4,7 @@
 	Version="9.00"
 	Name="calc"
 	ProjectGUID="{23180217-AB94-438A-9E32-56942378BA5C}"
-	RootNamespace="msvc"
+	RootNamespace="qmcalc"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
