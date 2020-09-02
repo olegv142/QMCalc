@@ -257,6 +257,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\sqwe.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\stdint.h"
 				>
 			</File>
