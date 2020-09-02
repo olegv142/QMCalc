@@ -37,11 +37,13 @@ const char* LastErrorText()
 	const ErrorDescriptor& lastError = ErrorDescriptor::LastError();
 	static char textBuffer[TEXT_BUFF_LEN+1];
 	textBuffer[TEXT_BUFF_LEN] = 0;
-	if( const char* lastErrorType = lastError.Type() )
-		if( const char* lastErrorParam = lastError.Param() )
+	if( const char* lastErrorType = lastError.Type() ) {
+		const char* lastErrorParam = lastError.Param();
+		if( lastErrorParam && *lastErrorParam )
 			snprintf( textBuffer, TEXT_BUFF_LEN, "%s : %s", lastErrorType, lastErrorParam );
 		else
 			snprintf( textBuffer, TEXT_BUFF_LEN, "%s", lastErrorType );
+	}
 	return textBuffer;
 }
 

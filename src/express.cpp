@@ -22,12 +22,18 @@ DefineErrorMess( EXPR_INVS, "Invalid string" );
 
 string* TStringHandle::empty = new string();
 
+TStringHandle::TStringHandle( double v )
+{
+	handle.str.id = empty;
+	handle.val = v;
+}
+
 TStringHandle::TStringHandle( string s )
 {
+	handle.str.id = empty;
 	if( !s.empty() ) {
 		string* st = new string( s );
 		handle.str.ptr = st;
-		handle.str.id = empty;
 	} else
 		handle.val = 0;
 }

@@ -35,7 +35,7 @@ union StringHandle {
 
 class  TStringHandle {
 public:
-	TStringHandle( double v ) { handle.val = v; }
+	TStringHandle( double v );
 	TStringHandle( string s );
 	operator double() { return handle.val; }
 	string Str();
