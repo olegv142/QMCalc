@@ -7,7 +7,7 @@ int main(int argc, char* argv[])
 	for( int i = 1 ; i < argc ; i++ ) {
 		TMacroProcessor pp( argv[i] );
 		calc.SetExpression( pp.Run() );
-		calc.Calc();
+		calc.Eval();
 	}
 	calc.Dump();
 }

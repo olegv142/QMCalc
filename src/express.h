@@ -71,12 +71,12 @@ public:
 	TVarNode();
 	~TVarNode();
 	void Assign( const char* pname, const char* pend, double value );
-	bool Look( const char* pname, const char* pend, double & value );
-	void Dump( string prefix );
+	bool Lookup( const char* pname, const char* pend, double & value ) const;
+	void Dump( string prefix ) const;
 
 private:
-	int  index( char c );
-	char letter( int index );
+	static int  index( char c );
+	static char letter( int index );
 
 	double val;
 	bool   ass;
@@ -92,21 +92,20 @@ public:
 
 	void SetExpression( const char* expr ) { expression = expr; }
 
-	virtual double Calc();
-	virtual void   Assign( const char* pname, const char* pend, double value );
-	virtual double Look( const char* pname, const char* pend );
+	double Eval();
 
-	void   assign( const char *name, double value );
-	void   assign( const char name, double value );
-	double look( const char *name );
-	double look( const char name );
+	void   Set( const char *name, double value );
+	void   Set( const char name, double value );
+	double Get( const char *name ) const;
+	double Get( const char name ) const;
 
-	virtual void Dump( string prefix = "" )
-		{ var.Dump( prefix ); }
-
-	string ErrorDump();
+	void Dump( string prefix = "" ) const { vars.Dump( prefix ); }
+	string ErrorDump() const;
 
 protected:
+	void   assign( const char* pname, const char* pend, double value );
+	double lookup( const char* pname, const char* pend ) const;
+
 	virtual FunctionPointer getFunction( const char* pname, const char* pend );
 	virtual double expr();
 	virtual double prim();
@@ -124,7 +123,7 @@ protected:
 	const char*  pname;
 	const char*  pend;
 
-	TVarNode var;
+	TVarNode vars;
 
 private:
 	char   nextChar();

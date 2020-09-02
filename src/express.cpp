@@ -108,7 +108,7 @@ void TVarNode::Assign( const char* pname, const char* pend, double value )
 	}
 }
 
-bool TVarNode::Look( const char* pname, const char* pend, double & value )
+bool TVarNode::Lookup( const char* pname, const char* pend, double & value ) const
 {
 	assert( pname && pend );
 	if( pname < pend ) {
@@ -116,7 +116,7 @@ bool TVarNode::Look( const char* pname, const char* pend, double & value )
 		if( !v )
 			return false;
 		else
-			return v->Look( pname + 1, pend, value );
+			return v->Lookup( pname + 1, pend, value );
 	} else {
 		value = val;
 		return ass;
@@ -145,7 +145,7 @@ char TVarNode::letter( int index )
 		return index + 'A' - 11;
 }
 
-void TVarNode::Dump( string prefix )
+void TVarNode::Dump( string prefix ) const
 {
 	if( ass )
 		print( prefix, val );
@@ -160,10 +160,10 @@ TExpression::TExpression( const char* expr )
 	curToken = END;
 	tvalue = 0;
 	ptr = pname = pend = 0;
-	assign( "PI", M_PI );
+	Set( "PI", M_PI );
 }
 
-double TExpression::Calc()
+double TExpression::Eval()
 {
 	double e = 0;
 	if( !( ptr = expression ) )
@@ -177,21 +177,21 @@ double TExpression::Calc()
 	return e;
 }
 
-void   TExpression::Assign( const char* pname, const char* pend, double value )
+void   TExpression::assign( const char* pname, const char* pend, double value )
 {
 	assert( pname && pend );
 	check( pname < pend, EXPR_INVVAR );
 	check( IsFirstLetter( *pname ), EXPR_INVVAR );
-	var.Assign( pname, pend, value );
+	vars.Assign( pname, pend, value );
 }
 
-double TExpression::Look( const char* pname, const char* pend )
+double TExpression::lookup( const char* pname, const char* pend ) const
 {
 	assert( pname && pend );
 	check( pname < pend, EXPR_INVVAR );
 	check( IsFirstLetter( *pname ), EXPR_INVVAR );
 	double val = 0;
-	if( !var.Look( pname, pend, val ) )
+	if( !vars.Lookup( pname, pend, val ) )
 		if( *pend )
 			Signal( EXPR_NOTASS );
 		else
@@ -199,26 +199,26 @@ double TExpression::Look( const char* pname, const char* pend )
 	return val;
 }
 
-void   TExpression::assign( const char *name, double value )
+void   TExpression::Set( const char *name, double value )
 {
-	Assign( name, strchr( name, 0 ), value );
+	assign( name, strchr( name, 0 ), value );
 }
 
-void   TExpression::assign( const char name, double value )
+void   TExpression::Set( const char name, double value )
 {
 	char s[] = { name, 0 };
-	Assign( s, s + 1, value );
+	assign( s, s + 1, value );
 }
 
-double TExpression::look( const char *name )
+double TExpression::Get( const char *name ) const
 {
-	return Look( name, strchr( name, 0 ) );
+	return lookup( name, strchr( name, 0 ) );
 }
 
-double TExpression::look( const char name )
+double TExpression::Get( const char name ) const
 {
 	char s[] = { name, 0 };
-	return Look( s, s + 1 );
+	return lookup( s, s + 1 );
 }
 
 char TExpression::nextChar()
@@ -491,10 +491,10 @@ double TExpression::prim()
 			if( next == ASSIGN ) {
 				getToken();
 				val = log();
-				Assign( name, end, val );
+				assign( name, end, val );
 				return val;
 			} else
-				return Look( name, end );
+				return lookup( name, end );
 		case MINUS :
 			getToken();
 			return -prim();
@@ -535,7 +535,7 @@ FunctionPointer TExpression::getFunction( const char* pname, const char* pend )
 	return 0;
 }
 
-string TExpression::ErrorDump()
+string TExpression::ErrorDump() const
 {
 	const char *e = ( ptr - expression > DUMP_LENGTH ) ?
 		ptr - DUMP_LENGTH : expression;
