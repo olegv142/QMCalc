@@ -1,0 +1,47 @@
+grd = 201;
+zsp = grd / 2;
+
+esb = 2;
+W = 200;
+Z = W + W / 2;
+W = W / Z;
+Ne = 5;
+rf = 0;
+eps = 12.5;
+ex = 0;
+R = 7.63 / Z ^ 2;
+ef = 2.375e-4 * Ne * Z ^ 3 / eps;
+e1 = rf * ef;
+cex = ex * .3055 * ( Ne / Z ) ^ ( 1 / 3 ) / ( eps * R );
+Ro = 1000 * R;
+
+x  = 0.3;
+mea = .15;
+me = .0665;
+me0 = me1 = me * ( 1 - x ) + mea * x;
+eb1 = eb0 = .68 * 1.247 * x / R;
+
+## Parameters definitions for single quantum well electron model (sqwe.cpp)
+	grd	Number of grid points
+	zsp	Number of steps for potential turning on
+	esb	Number of electron's subbands computed
+	Z	Model region ( A )
+	W	SQW width in the units of Z
+	Ne	Electron's surface dencity ( e11 )
+	R	Energy unit ( eV )
+	Ro	Energy scale in output files
+	rf	Residual electric field constant
+	ex	Exchange energy constant (0-exchange not included, 1-included)
+	eps	Dielectric constant
+	x	Al content in the barrier
+	me	Electrons effective mass
+	me0/1	Electrons effective mass in the barrier ( 0-left, 1-right )
+	eb0/1	Barriers height for electrons
+	
+  Derived parameters:
+	cex     Exchange energy factor (times psy ^ 2/3)
+	ef      Poisson equation factor (phy" + ef * psy^2 = 0)
+	e1      External electric field
+	        
+	
+	
