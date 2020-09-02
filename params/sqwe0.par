@@ -1,0 +1,17 @@
+grd = 201;
+esb = 3;
+zsp = 2;
+Z = 200;
+W = 1;
+Ne = 0;
+R = 7.63 / Z ^ 2;
+ef = 0;
+e1 = 0;
+cex = 0;
+me = me0 = me1 = 1;
+eb1 = eb0 = 0;
+
+Ro = 2 / (Pi ^ 2);
+
+## Test case - quantum well with infinite barriers, no electric field.
+   Energy normalized so that it should be equal to n^2 (n=1,2..)	        
