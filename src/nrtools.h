@@ -7,7 +7,7 @@ ErrorCode( SOLVDE_IT );
 typedef void (*DiffEqCb)( int, int*, float**, float**, void* );
 
 int solvde( DiffEqCb difeq, int itmax, float conv, float slowc, float scalv[], int indexv[],
-        int ne, int nb, int m, float **y, float ***c, float **s, FILE *debug );
+        int ne, int nb, int m, float **y, float ***c, float **s, FILE *debug, void* ctx );
 
 float pythag(float a, float b);
 
