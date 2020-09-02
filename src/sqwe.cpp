@@ -27,33 +27,33 @@ DefineErrorMess( SQWE_QNCH, "Wavefunction quench" );
 
 void GetSQWEParams(struct SQWEParams& p, TExpression const& e)
 {
-	p.M      = (unsigned)e.Get("grd");
-	p.W      = (float   )e.Get("W");
-	p.psteps = (unsigned)e.Get("zsp");
-	p.me     = (float   )e.Get("me");
-	p.me0    = (float   )e.Get("me0");
-	p.me1    = (float   )e.Get("me1");
-	p.ef     = (float   )e.Get("ef");
-	p.e1     = (float   )e.Get("e1");
-	p.cex    = (float   )e.Get("cex");
-	p.eb0    = (float   )e.Get("eb0");
-	p.eb1    = (float   )e.Get("eb1");
-	p.esb    = (unsigned)e.Get("esb");
-	p.Ro     = (float   )e.Get("Ro");
+	p.M        = (unsigned)e.Get("grd");
+	p.subbands = (unsigned)e.Get("subbands");
+	p.psteps   = (unsigned)e.Get("psteps");
+	p.W        = (float   )e.Get("W");
+	p.me       = (float   )e.Get("me");
+	p.me0      = (float   )e.Get("me0");
+	p.me1      = (float   )e.Get("me1");
+	p.ef       = (float   )e.Get("ef");
+	p.e1       = (float   )e.Get("e1");
+	p.cex      = (float   )e.Get("cex");
+	p.eb0      = (float   )e.Get("eb0");
+	p.eb1      = (float   )e.Get("eb1");
+	p.Eo       = (float   )e.Get("Eo");
 }
 
 SQWESolver::SQWESolver(struct SQWEParams const& params)
 	: p(params)
 {
-	assert( p.esb > 0 && p.M > 1 && p.psteps > 1 );
+	assert( p.subbands > 0 && p.M > 1 && p.psteps > 1 );
 	assert( p.me > 0 && p.me0 > 0 && p.me1 > 0 );
 	assert( p.eb0 >= 0 && p.eb1 >= 0 );
 
 	s = matrix( 1, NE, 1, 2 * NE + 1 );
 	c = f3tensor( 1, NE, 1, NC + 1, 1, p.M + 1 );
 	yg = matrix( 1, ENE0, 1, p.M );
-	if ( p.esb > 1 )
-		ys = f3tensor( 1, p.esb - 1, 1, ENE1, 1, p.M );
+	if ( p.subbands > 1 )
+		ys = f3tensor( 1, p.subbands - 1, 1, ENE1, 1, p.M );
 	else 
 		ys = NULL;
 
@@ -84,7 +84,7 @@ SQWESolver::~SQWESolver()
 	free_f3tensor( c, 1, NE, 1, NC + 1, 1, p.M + 1 );
 	free_matrix( yg, 1, ENE0, 1, p.M );
 	if ( ys )
-		free_f3tensor( ys, 1, p.esb - 1, 1, ENE1, 1, p.M );
+		free_f3tensor( ys, 1, p.subbands - 1, 1, ENE1, 1, p.M );
 	free_vector( pot, 1, p.M );
 	free_vector( scalv0, 1, NE );
 	free_vector( scalvs, 1, NE );
@@ -95,7 +95,7 @@ SQWESolver::~SQWESolver()
 void SQWESolver::eguess()
 {
 	assert( yg );
-	assert( p.esb <= 1 || ys );
+	assert( p.subbands <= 1 || ys );
 	float const sq2 = sqrt( 2.f );
 	float const pi  = (float)M_PI;
 	unsigned k, i;
@@ -107,7 +107,7 @@ void SQWESolver::eguess()
 		yg[3][k] = sq2 * sin( px );
 		yg[4][k] = pi * sq2 * cos( px ) / ( 2 * p.me );
 		yg[5][k] = pi * pi / ( 2 * p.me );
-		for( i = 1 ; i < p.esb ; i++ ) {
+		for( i = 1 ; i < p.subbands ; i++ ) {
 			unsigned j = i + 1;
 			float jpi = j * pi;
 			float jpx = jpi * x;
@@ -123,7 +123,7 @@ void SQWESolver::eguess()
 void SQWESolver::eintro()
 {
 	assert( yg );
-	assert( p.esb <= 1 || ys );
+	assert( p.subbands <= 1 || ys );
 	float eef = p.ef;
 	float ee1 = p.e1;
 	p.ef = p.e1 = 0;
@@ -147,7 +147,7 @@ void SQWESolver::eintro()
 
 void SQWESolver::adjustEnergy(float delta)
 {
-	for ( unsigned s = 0 ; s < p.esb ; s++ ) {
+	for ( unsigned s = 0 ; s < p.subbands ; s++ ) {
 		double sum = 0;
 		const float *wfun = WaveFunction( s );
 		for( unsigned i = 2 ; i < p.M ; i++ )
@@ -160,30 +160,30 @@ void SQWESolver::adjustEnergy(float delta)
 
 void SQWESolver::setEnergy(unsigned subband, float val)
 {
-	assert( 0 <= subband && subband < p.esb );
+	assert( 0 <= subband && subband < p.subbands );
 	float *e = ( subband > 0 ? ys[subband][4] : yg[5] );
 	for( unsigned i = 1 ; i <= p.M ; i++ ) e[i] = val;
 }
 
 float SQWESolver::getEnergy(unsigned subband) const
 {
-	assert( 0 <= subband && subband < p.esb );
+	assert( 0 <= subband && subband < p.subbands );
 	return subband == 0 ? yg[5][1] : ys[subband][4][1];
 }
 
 const float* SQWESolver::WaveFunction( unsigned subband ) const
 {
-	assert( 0 <= subband && subband < p.esb );
+	assert( 0 <= subband && subband < p.subbands );
 	return subband == 0 ? &yg[3][1] : &ys[subband][2][1];
 }
 
 void SQWESolver::esolve(float precision)
 {
 	assert( yg );
-	assert( p.esb <= 1 || ys );
+	assert( p.subbands <= 1 || ys );
 	solvde( eq0cb, ITMAX, precision, SLOWC, scalv0, indexv, ENE0, ENB0, p.M, yg, c, s, NULL, this );
 	checkZeroes( 0 );
-	for( unsigned i = 1 ; i < p.esb ; i++ ) {
+	for( unsigned i = 1 ; i < p.subbands ; i++ ) {
 		solvde( eq1cb, ITMAX, precision, SLOWC, scalvs, indexv, ENE1, ENB1, p.M, ys[i], c, s, NULL, this );
 		checkZeroes( i );
 	}
@@ -315,15 +315,15 @@ void SQWESolver::SaveResults(const char* filename) const
 {
 	std::ofstream out( filename, std::ios::trunc );
 	check3( out, SQWE_OUT, filename );
-	out << "\"E0=" << getEnergy( 0 ) * p.Ro << "; ";
-	for( unsigned i = 1 ; i < p.esb ; i++ ) 
-		out << "E" << i << "0=" << ( getEnergy( i ) - getEnergy( 0 ) ) * p.Ro << "; ";
+	out << "\"E0=" << getEnergy( 0 ) * p.Eo << "; ";
+	for( unsigned i = 1 ; i < p.subbands ; i++ ) 
+		out << "E" << i << "0=" << ( getEnergy( i ) - getEnergy( 0 ) ) * p.Eo << "; ";
 	for( unsigned k = 1 ; k <= p.M ; k++ ) {
 		out << std::endl;
 		out << ( k - 1.0 ) / ( p.M - 1.0 )  << " " 
-			<<  ( yg[1][k] + pot[k] ) * p.Ro << " " 
+			<<  ( yg[1][k] + pot[k] ) * p.Eo << " " 
 			<< yg[3][k];
-		for( unsigned i = 1 ; i < p.esb ; i++ ) out << " " <<  ys[i][2][k];
+		for( unsigned i = 1 ; i < p.subbands ; i++ ) out << " " <<  ys[i][2][k];
 	}
 	out.close();
 }

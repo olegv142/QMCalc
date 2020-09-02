@@ -1,6 +1,6 @@
 grd = 201;
-esb = 3;
-zsp = 2;
+psteps = 2;
+subbands = 3;
 W = 1;
 ef = 0;
 e1 = 0;
@@ -8,7 +8,7 @@ cex = 0;
 me = me0 = me1 = 1;
 eb1 = eb0 = 0;
 
-Ro = 2 / (Pi ^ 2);
+Eo = 2 / (Pi ^ 2);
 
 ## Test case - quantum well with infinite barriers, no electric field.
    Energy normalized so that it should be equal to n^2 (n=1,2..)	        

@@ -5,19 +5,19 @@
 // Parameters definitions for single quantum well electron model (sqwe.cpp)
 // Units are selected to be dimensionless, see also comments in sqwe.par
 struct SQWEParams {
-	unsigned M;      // The number of grid points (in z direction)
-	float    W;      // SQW width in the units of Z
-	unsigned psteps; // Number of steps for potential turning on
-	float    me;     // Electrons effective mass
-	float    me0;    // Electrons effective mass in the barrier (to the left of the well)
-	float    me1;    // Electrons effective mass in the barrier (to the right of the well)
-	float    ef;     // Poisson equation factor (phy" + ef * psy^2 = 0)
-	float    e1;     // External electric field
-	float    cex;    // Exchange energy factor (times psy ^ 2/3)
-	float    eb0;    // Barriers height for electrons (to the left of the well)
-	float    eb1;    // Barriers height for electrons (to the right of the well)
-	unsigned esb;    // Number of electron's subbands computed (>0)
-	float    Ro;     // Energy scale in output files
+	unsigned M;        // The number of grid points (in z direction)
+	unsigned subbands; // Number of electron's subbands computed (>0)
+	unsigned psteps;   // Number of steps for potential turning on
+	float    W;        // SQW width in the units of Z
+	float    me;       // Electrons effective mass
+	float    me0;      // Electrons effective mass in the barrier (to the left of the well)
+	float    me1;      // Electrons effective mass in the barrier (to the right of the well)
+	float    ef;       // Poisson equation factor (phy" + ef * psy^2 = 0)
+	float    e1;       // External electric field
+	float    cex;      // Exchange energy factor (times psy ^ 2/3)
+	float    eb0;      // Barriers height for electrons (to the left of the well)
+	float    eb1;      // Barriers height for electrons (to the right of the well)
+	float    Eo;       // Energy scale in output files
 };
 
 class TExpression;
