@@ -70,7 +70,7 @@ SQWESolver::SQWESolver(struct SQWEParams const& params)
 	scalv0[ENE0] = scalvs[ENE1] = 1 / p.me;
 	float B2 = ( 1 - p.W ) / 2;
 	for( i = 1 ; i <= p.M ;  i++ ) {
-		float z = float( i ) / p.M;
+		float z = ( i - 1.f ) / ( p.M - 1.f );
 		if( z < B2 ) pot[i] = p.eb0;
 		else if( z > 1 - B2 ) pot[i] = p.eb1;
 		else pot[i] = 0;
@@ -130,7 +130,6 @@ void SQWESolver::eintro()
 	unsigned i;
 	for( i = 1 ; i <= p.psteps ; i++ ) {
 		pscale = float( i ) / p.psteps;
-		adjustEnergy( 1.0f / p.psteps );
 		esolve( CONV0 );
 	}
 	while( p.e1 < ee1 ) {  // apply electric field in steps
@@ -143,19 +142,6 @@ void SQWESolver::eintro()
 		p.ef += PARSTART / p.me + PARSTEP * p.ef;
 	}
 	p.ef = eef;
-}
-
-void SQWESolver::adjustEnergy(float delta)
-{
-	for ( unsigned s = 0 ; s < p.subbands ; s++ ) {
-		double sum = 0;
-		const float *wfun = WaveFunction( s );
-		for( unsigned i = 2 ; i < p.M ; i++ )
-			sum +=  pot[i] * wfun[i] * wfun[i];
-		sum += .5 * ( pot[1] * wfun[1] * wfun[1] + pot[p.M] * wfun[p.M] * wfun[p.M] );
-		sum *= delta / p.M;
-		setEnergy( s, getEnergy( s ) + (float)sum );
-	}
 }
 
 void SQWESolver::setEnergy(unsigned subband, float val)
@@ -220,7 +206,7 @@ void SQWESolver::eq1cb(int k, int* idx, float **s, float **y, void* ctx)
 
 void SQWESolver::eq0(int k, int* idx, float **s, float **y) const
 {
-	float h = 1.0f / p.M;
+	float h = 1 / (p.M - 1.f);
 	float h2 = h / 2;
 	clear_matrix( s, 1, ENE0, 1, 2 * ENE0 + 1 );
 
@@ -265,7 +251,7 @@ void SQWESolver::eq0(int k, int* idx, float **s, float **y) const
 
 void SQWESolver::eq1(int k, int* idx, float **s, float **y) const
 {
-	float h = 1.0f / p.M;
+	float h = 1 / (p.M - 1.f);
 	float h2 = h / 2;
 	clear_matrix( s, 1, ENE1, 1, 2 * ENE1 + 1 );
 
