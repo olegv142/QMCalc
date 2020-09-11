@@ -64,16 +64,16 @@ int solvde( DiffEqCb difeq, int itmax, float conv, float slowc, float scalv[], i
 
 	for( it = 1 ; it <= itmax ; it++ ) {    /* Primary iteration loop */
 		try {
-	                k = 1;                             /* Boundary conditions at first point */
+			k = 1;                             /* Boundary conditions at first point */
 			difeq( k, indexv, s, y, ctx );
 			pinvs( nc1, ne, ne1, n2e1, 1, 1, c, s );
-	                for( k = 2 ; k <= m ; k++ ) { /* Finite difference equations at all point pairs */
-		                kp = k - 1;
+			for( k = 2 ; k <= m ; k++ ) { /* Finite difference equations at all point pairs */
+				kp = k - 1;
 				difeq( k, indexv, s, y, ctx );
 				red( 1, ne, 1, nb, nb1, ne, n2e1, nc1, 1, nc1, kp, c, s );
 				pinvs( 1, ne, nb1, n2e1, 1, k, c, s );
-	                }
-		        k = m + 1;  /* Final boundary conditions */
+			}
+			k = m + 1;  /* Final boundary conditions */
 			difeq( k, indexv, s, y, ctx );
 			red( 1, nc, ne1, neb, neb1, n2e, n2e1, nc1, 1, nc1, m, c, s );
 			pinvs( 1, nc, neb1, n2e1, nc1, k, c, s );
@@ -199,7 +199,7 @@ used internally by solvde. */
 			}
 			rptr++;
 		}
-		if( s[ipiv][jpiv] == 0 ) {
+		if( piv == 0 || s[ipiv][jpiv] == 0 ) {
 			free_vector( pscl, ie1, ie2 );
 			free_ivector( indxr, ie1, ie2 );
 			nrerror( "Singular matrix in pinvs()" );
@@ -225,7 +225,6 @@ used internally by solvde. */
 				}
 			}
 		}
-
 	}
 	jcoff = jc1 - js1;  /* Sort and store unreduced coefficients */
 	icoff = ie1 - je1;
