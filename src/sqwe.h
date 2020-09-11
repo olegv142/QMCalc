@@ -24,7 +24,6 @@ class TExpression;
 
 void GetSQWEParams(struct SQWEParams& p, TExpression const& e);
 
-ErrorCode( SQWE_NLS );
 ErrorCode( SQWE_OUT );
 ErrorCode( SQWE_QNCH );
 
@@ -43,7 +42,6 @@ protected:
 	void  eguess();
 	void  eintro();
 	void  esolve(float precision);
-	void  adjustEnergy(float delta);
 	void  setEnergy(unsigned subband, float val);
 	float getEnergy(unsigned subband) const;
 	void  checkZeroes(unsigned subband) const;

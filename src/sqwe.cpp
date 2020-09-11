@@ -21,7 +21,6 @@
 #define CONV0 .1f
 #define SLOWC 10
 
-DefineErrorMess( SQWE_NLS, "Non local solution" );
 DefineErrorMess( SQWE_OUT, "Can't write output file" );
 DefineErrorMess( SQWE_QNCH, "Wavefunction quench" );
 
@@ -50,7 +49,7 @@ SQWESolver::SQWESolver(struct SQWEParams const& params)
 	assert( p.eb0 >= 0 && p.eb1 >= 0 );
 
 	s = matrix( 1, NE, 1, 2 * NE + 1 );
-	c = f3tensor( 1, NE, 1, NC + 1, 1, p.M + 1 );
+	c = f3tensor( 1, NE, 1, NC, 1, p.M + 1 );
 	yg = matrix( 1, ENE0, 1, p.M );
 	if ( p.subbands > 1 )
 		ys = f3tensor( 1, p.subbands - 1, 1, ENE1, 1, p.M );
@@ -81,7 +80,7 @@ SQWESolver::SQWESolver(struct SQWEParams const& params)
 SQWESolver::~SQWESolver()
 {
 	free_matrix( s, 1, NE, 1, 2 * NE + 1 );
-	free_f3tensor( c, 1, NE, 1, NC + 1, 1, p.M + 1 );
+	free_f3tensor( c, 1, NE, 1, NC, 1, p.M + 1 );
 	free_matrix( yg, 1, ENE0, 1, p.M );
 	if ( ys )
 		free_f3tensor( ys, 1, p.subbands - 1, 1, ENE1, 1, p.M );
