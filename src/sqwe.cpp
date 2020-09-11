@@ -2,6 +2,7 @@
 #include "nrutil.h"
 #include "nrtools.h"
 #include "express.h"
+#include "misc.h"
 #include <fstream>  
 
 #define _USE_MATH_DEFINES
@@ -177,19 +178,7 @@ void SQWESolver::esolve(float precision)
 void SQWESolver::checkZeroes( unsigned subband ) const
 {
 	const float *f = WaveFunction( subband );
-	double delta = 1.0 / ( p.M * p.M );
-	unsigned i, cnt = 0;
-	int sign = 0;
-	for( i = 2 ; i < p.M ; i++ ) {
-		float val = f[i];
-		if ( val > delta ) {
-			if ( sign < 0 ) ++cnt;
-			sign = 1;
-		} else if ( val < -delta ) {
-			if ( sign > 0 ) ++cnt;
-			sign = -1;
-		}
-	}
+	unsigned cnt = count_zeros(f, 2, p.M, 1.f / ( p.M * p.M ));
 	check( cnt == subband, SQWE_QNCH );
 }
 

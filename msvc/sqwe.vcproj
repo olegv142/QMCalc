@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\misc.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\nrutil.cpp"
 				>
 			</File>
