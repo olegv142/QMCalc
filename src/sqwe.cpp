@@ -18,9 +18,9 @@
 #define PARSTART 25
 #define TILTSTEP 3
 #define PARSTEP .1f
-#define ITMAX 200
+#define ITMAX 1000
 #define CONV0 .1f
-#define SLOWC 10
+#define SLOWC CONV0
 
 DefineErrorMess( SQWE_OUT, "Can't write output file" );
 DefineErrorMess( SQWE_QNCH, "Wavefunction quench" );
@@ -40,6 +40,7 @@ void GetSQWEParams(struct SQWEParams& p, TExpression const& e)
 	p.eb0      = (float   )e.Get("eb0");
 	p.eb1      = (float   )e.Get("eb1");
 	p.Eo       = (float   )e.Get("Eo");
+	p.prec     = (float   )e.Get("prec");
 }
 
 SQWESolver::SQWESolver(struct SQWEParams const& params)
@@ -168,17 +169,17 @@ void SQWESolver::esolve(float precision)
 	assert( yg );
 	assert( p.subbands <= 1 || ys );
 	solvde( eq0cb, ITMAX, precision, SLOWC, scalv0, indexv, ENE0, ENB0, p.M, yg, c, s, NULL, this );
-	checkZeroes( 0 );
+	checkZeroes( 0, precision );
 	for( unsigned i = 1 ; i < p.subbands ; i++ ) {
 		solvde( eq1cb, ITMAX, precision, SLOWC, scalvs, indexv, ENE1, ENB1, p.M, ys[i], c, s, NULL, this );
-		checkZeroes( i );
+		checkZeroes( i, precision );
 	}
 }
 
-void SQWESolver::checkZeroes( unsigned subband ) const
+void SQWESolver::checkZeroes( unsigned subband, float precision ) const
 {
 	const float *f = WaveFunction( subband );
-	unsigned cnt = count_zeros(f, 2, p.M, 1.f / ( p.M * p.M ));
+	unsigned cnt = count_zeros(f, 0, p.M - 1, precision);
 	check( cnt == subband, SQWE_QNCH );
 }
 
@@ -278,11 +279,11 @@ void SQWESolver::eq1(int k, int* idx, float **s, float **y) const
 	}
 }
 
-void SQWESolver::Solve(float precision)
+void SQWESolver::Solve()
 {
 	eguess(); // Make initial guess
 	eintro(); // Tune it to account electric field
-	esolve( precision ); // Solve
+	esolve( p.prec ); // Solve
 }
 
 void SQWESolver::SaveResults(const char* filename) const

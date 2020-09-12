@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 	struct SQWEParams params;
 	GetSQWEParams(params, x);
 	SQWESolver s(params);
-	s.Solve(1e-3f);
+	s.Solve();
 	s.SaveResults("sqwe.dat");
 	return 0;
 }

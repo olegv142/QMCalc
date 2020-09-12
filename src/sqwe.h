@@ -18,6 +18,7 @@ struct SQWEParams {
 	float    eb0;      // Barriers height for electrons (to the left of the well)
 	float    eb1;      // Barriers height for electrons (to the right of the well)
 	float    Eo;       // Energy scale in output files
+	float    prec;     // Solving precision
 };
 
 class TExpression;
@@ -32,7 +33,7 @@ public:
 	SQWESolver(struct SQWEParams const& params);
 	~SQWESolver();
 
-	void  Solve(float precision);
+	void  Solve();
 	float Energy(unsigned subband) const;
 	void  SaveResults(const char* filename) const;
 	const float* WaveFunction(unsigned subband) const;
@@ -44,7 +45,7 @@ protected:
 	void  esolve(float precision);
 	void  setEnergy(unsigned subband, float val);
 	float getEnergy(unsigned subband) const;
-	void  checkZeroes(unsigned subband) const;
+	void  checkZeroes(unsigned subband, float precision) const;
 
 	void eq0(int k, int* idx, float **s, float **y) const;
 	void eq1(int k, int* idx, float **s, float **y) const;
