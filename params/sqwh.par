@@ -1,7 +1,7 @@
 grid = 201;
 psteps = grid;
 subband = 0;
-NL = 4;
+NL = 1;
 
 W = 200;
 Z = W + W / 2;
@@ -22,6 +22,8 @@ g2 = 2.1;
 g3 = 2.9;
 K  = 1.2;
 
+prec = 1e-3;
+
 ## Parameters definitions for single quantum well holes model (sqwh.cpp)
 	grid	       Number of grid points
 	psteps         Number of steps for potential turning on
@@ -37,3 +39,4 @@ K  = 1.2;
 	Bsteps         Magnetic field steps (so B varies from 0 to B_step * B_steps)
 	Bo             Magnetic field scale in output files
 	g1, g2, g3, K  Luttinger parameters
+	prec           Solving precision

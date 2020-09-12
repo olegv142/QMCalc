@@ -10,5 +10,7 @@ eb1 = eb0 = 0;
 
 Eo = 2 / (Pi ^ 2);
 
+prec = 1e-3;
+
 ## Test case - quantum well with infinite barriers, no electric field.
    Energy normalized so that it should be equal to n^2 (n=1,2..)	        

@@ -20,6 +20,8 @@ me = .0665;
 me0 = me1 = me * ( 1 - x ) + mea * x;
 eb1 = eb0 = .68 * 1.247 * x / E0;
 
+prec = 1e-3;
+
 ## Parameters definitions for single quantum well electron model (sqwe.cpp)
 	grd      Number of grid points
 	psteps   Number of steps for potential turning on
@@ -36,7 +38,8 @@ eb1 = eb0 = .68 * 1.247 * x / E0;
 	me       Electrons effective mass
 	me0/1    Electrons effective mass in the barrier ( 0-left, 1-right )
 	eb0/1    Barriers height for electrons
-	
+	prec     Solving precision
+
   Derived parameters:
 	cex      Exchange energy factor (times psy ^ 2/3)
 	ef       Poisson equation factor (phy" + ef * psy^2 = 0)
