@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 	struct SQWHParams params;
 	GetSQWHParams(params, x);
 	SQWHSolver s(params);
-	s.Solve(1e-3f);
+	s.Solve();
 	s.SaveResults("sqwh");
 	return 0;
 }

@@ -16,7 +16,8 @@ struct SQWHParams {
 	unsigned Bsteps;     // Magnetic field steps (so B varies from 0 to B_step * B_steps)
 	float    Eo;         // Energy scale in output files
 	float    Bo;         // Magnetic field scale in output files
-	float g1, g2, g3, K; // Luttinger parameters
+	float    g1, g2, g3, K; // Luttinger parameters
+	float    prec;     // Solving precision
 };
 
 class TExpression;
@@ -31,18 +32,22 @@ public:
 	SQWHSolver(struct SQWHParams const& params);
 	~SQWHSolver();
 
-	void  Solve(float precision);
+	void  Solve();
 	void  SaveResults(const char* basename) const;
 
 protected:
-	void init_guess(unsigned s);
+	void init_guess(unsigned spin);
 	void init_level(unsigned lvl);
 	void set_magnetic_field(float field);
 	void init_derivative_matrix();
-	unsigned count_zeros(unsigned s) const;
+
 	void solve_once(unsigned spin, float precision);
-	void solve_zero_field(float precision);
-	void save_wavefunction(float **f, const char* filename) const;
+	void solve_zero_field();
+	void solve_level(unsigned l);
+
+	unsigned count_zeros(unsigned spin, float precision) const;
+	void save_wavefunction(float **f, const std::string& filename) const;
+	void save_level(float **e, const std::string& filename) const;
 
 	void eq(int k, int* idx, float **s, float **y) const;
 	static void eq_cb(int k, int* idx, float **s, float **y, void* ctx);
@@ -57,7 +62,9 @@ protected:
 	float *pot;    // Potential array
 	float *scalv;  // Scaling array
 	int   *indexv; // Index array
+
 	float **z[4];  // Zero field solutions
+	float ***e;     // Energy results [cyclotron_level][field][spin]
 
 	// Current parameters
 	float    pscale; // Potential scaling factor

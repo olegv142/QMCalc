@@ -8,9 +8,9 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#define ITMAX 200
+#define ITMAX 1000
 #define CONV0 .1f
-#define SLOWC 10
+#define SLOWC CONV0
 
 // The number of equations
 #define NE 10
@@ -44,6 +44,7 @@ void GetSQWHParams(struct SQWHParams& p, TExpression const& e)
 	p.g2       = (float   )e.Get("g2");
 	p.g3       = (float   )e.Get("g3");
 	p.K        = (float   )e.Get("K");
+	p.prec     = (float   )e.Get("prec");
 }
 
 SQWHSolver::SQWHSolver(struct SQWHParams const& params)
@@ -78,10 +79,17 @@ SQWHSolver::SQWHSolver(struct SQWHParams const& params)
 	}
 
 	D = matrix( 1, NE, 1, NE );
+
 	z[0] = matrix( 1, NE, 1, p.M );
 	z[1] = matrix( 1, NE, 1, p.M );
 	z[2] = matrix( 1, NE, 1, p.M );
 	z[3] = matrix( 1, NE, 1, p.M );
+
+	if (p.NL > 0) {
+		e = f3tensor( 0, p.NL - 1, 0, p.Bsteps, 0, 3 );
+		clear_f3tensor( e, 0, p.NL - 1, 0, p.Bsteps, 0, 3 );
+	} else
+		e = NULL;
 }
 
 SQWHSolver::~SQWHSolver()
@@ -97,12 +105,14 @@ SQWHSolver::~SQWHSolver()
 	free_matrix( z[1], 1, NE, 1, p.M );
 	free_matrix( z[2], 1, NE, 1, p.M );
 	free_matrix( z[3], 1, NE, 1, p.M );
+	if (p.NL > 0)
+		free_f3tensor( e, 0, p.NL - 1, 0, p.Bsteps, 0, 3 );
 }
 
 // Create initial guess for the particular spin s = 0..3
-void SQWHSolver::init_guess(unsigned s)
+void SQWHSolver::init_guess(unsigned spin)
 {
-	float m = (s == 1 || s == 2) ? mh : ml;
+	float m = (spin == 1 || spin == 2) ? mh : ml;
 	float pl = (float)M_PI * (p.subband + 1.f);
 	float e = pl * pl / m;
 	unsigned i;
@@ -111,8 +121,8 @@ void SQWHSolver::init_guess(unsigned s)
 		float z = ( i - 1.f ) / ( p.M - 1.f );
 		float f = pl * z;
 		y[1][i] = z - sin(2 * f) / (2 * pl);
-		y[2 + s][i] = sqrt(2.f) * sin(f);
-		y[6 + s][i] = sqrt(2.f) * pl * cos(f) / m;
+		y[2 + spin][i] = sqrt(2.f) * sin(f);
+		y[6 + spin][i] = sqrt(2.f) * pl * cos(f) / m;
 		y[10][i] = e;
 	}
 	pscale = 0;
@@ -143,23 +153,33 @@ void SQWHSolver::set_magnetic_field(float field)
 	init_derivative_matrix();
 }
 
-void SQWHSolver::Solve(float precision)
+void SQWHSolver::Solve()
 {
-	solve_zero_field(precision);
+	solve_zero_field();
+	for (unsigned l = 0; l < p.NL; ++l)
+		solve_level(l);
 }
 
 void SQWHSolver::SaveResults(const char* basename) const
 {
-	save_wavefunction(z[0], (std::string(basename) + "_hm.dat").c_str());
-	save_wavefunction(z[1], (std::string(basename) + "_lm.dat").c_str());
-	save_wavefunction(z[2], (std::string(basename) + "_lp.dat").c_str());
-	save_wavefunction(z[3], (std::string(basename) + "_hp.dat").c_str());
+	std::string bname(basename);
+	bname += (char)('0' + p.subband);
+
+	save_wavefunction(z[0], bname + "_hm.dat");
+	save_wavefunction(z[1], bname + "_lm.dat");
+	save_wavefunction(z[2], bname + "_lp.dat");
+	save_wavefunction(z[3], bname + "_hp.dat");
+
+	bname += 'L';
+	for (unsigned l = 0; l < p.NL; ++l) {
+		save_level(e[l], bname + (char)('0' + l) + ".dat");
+	}
 }
 
 // Count zeros for the particular spin component s = 0..3
-unsigned SQWHSolver::count_zeros(unsigned s) const
+unsigned SQWHSolver::count_zeros(unsigned spin, float precision) const
 {
-	return ::count_zeros(y[2+s], 2, p.M, 1.f / ( p.M * p.M ));
+	return ::count_zeros(y[2+spin], 1, p.M, precision);
 }
 
 /*
@@ -297,31 +317,44 @@ void SQWHSolver::eq_cb(int k, int* idx, float **s, float **y, void* ctx)
 void SQWHSolver::solve_once(unsigned spin, float precision)
 {
 	solvde( eq_cb, ITMAX, precision, SLOWC, scalv, indexv, NE, NB, p.M, y, c, s, NULL, this );
-	check( count_zeros(spin) == p.subband, SQWH_QNCH );
+	check( count_zeros(spin, precision) == p.subband, SQWH_QNCH );
 }
 
-void SQWHSolver::solve_zero_field(float precision)
+void SQWHSolver::solve_zero_field()
 {
 	init_level(0);
 
 	unsigned spin, i;
-	for (spin = 0; spin < 4; ++spin) {
+	for ( spin = 0; spin < 4; ++spin ) {
 		init_guess(spin);
-		for( i = 1 ; i <= p.psteps ; i++ ) {
+		for ( i = 1 ; i <= p.psteps ; i++ ) {
 			pscale = float( i ) / p.psteps;
 			solve_once( spin, CONV0 );
 		}
-		solve_once(spin, precision);
+		solve_once(spin, p.prec);
 		copy_matrix(y, z[spin], 1, NE, 1, p.M, 1, 1);
 	}
 }
 
-void SQWHSolver::save_wavefunction(float **f, const char* filename) const
+void SQWHSolver::solve_level(unsigned l)
 {
-	std::ofstream out( filename, std::ios::trunc );
+	for ( unsigned spin = 0; spin < 4; ++spin ) {
+		copy_matrix(z[spin], y, 1, NE, 1, p.M, 1, 1);
+		init_level(l + spin);
+		for ( unsigned b = 0; b <= p.Bsteps; ++b ) {
+			set_magnetic_field(b * p.Bstep);
+			solve_once(spin, p.prec);
+			e[l][b][spin] = y[NE][1];
+		}
+	}
+}
+
+void SQWHSolver::save_wavefunction(float **f, const std::string& filename) const
+{
+	std::ofstream out( filename.c_str(), std::ios::trunc );
 	check3( out, SQWH_OUT, filename );
 	out << "\"E" << p.subband << '=' << f[NE][1] * p.Eo;
-	for( unsigned k = 1 ; k <= p.M ; k++ ) {
+	for ( unsigned k = 1 ; k <= p.M ; k++ ) {
 		out << std::endl
 			<< ( k - 1.0 ) / ( p.M - 1.0 )  << ' '
 			<< pot[k] * p.Eo << ' ' 
@@ -331,5 +364,17 @@ void SQWHSolver::save_wavefunction(float **f, const char* filename) const
 			<< f[5][k];
 	}
 	out.close();
+}
+
+void SQWHSolver::save_level(float **en, const std::string& filename) const
+{
+	std::ofstream out( filename.c_str(), std::ios::trunc );
+	check3( out, SQWH_OUT, filename );
+	for ( unsigned b = 0; b <= p.Bsteps; ++b ) {
+		out << b * p.Bstep * p.Bo;
+		for ( unsigned spin = 0; spin < 4; ++spin )
+			out << ' ' << en[b][spin] * p.Eo;
+		out << std::endl;
+	}
 }
 
