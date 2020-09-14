@@ -1,0 +1,27 @@
+grid = 101;
+psteps = grid;
+subband = 0;
+NL = 1;
+
+Z = 200;
+W = 1;
+
+E0 = 7.63 / Z ^ 2;
+Eo = 2 / (Pi ^ 2);
+
+B0 = (256 / Z) ^ 2;
+Bstep = .1 / B0;
+Bsteps = 0;
+Bo = B0;
+
+hb1 = hb0 = 0;
+
+g1 = 1;
+g2 = 0;
+g3 = 0;
+K  = 0;
+
+prec = 1e-3;
+
+## Test case - quantum well with infinite barriers, the hole mass equals to the free electron mass
+   Energy normalized so that it should be equal to n^2 (n=1,2.. - quantized subband index)
