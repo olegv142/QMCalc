@@ -112,7 +112,7 @@ SQWHSolver::~SQWHSolver()
 // Create initial guess for the particular spin s = 0..3
 void SQWHSolver::init_guess(unsigned spin)
 {
-	float m = (spin == 1 || spin == 2) ? mh : ml;
+	float m = (spin == 0 || spin == 3) ? mh : ml;
 	float pl = (float)M_PI * (p.subband + 1.f);
 	float e = pl * pl / m;
 	unsigned i;
@@ -142,6 +142,8 @@ void SQWHSolver::init_level(unsigned lvl)
 	N = n > 1 ? R * sqrt(n*(n - 1.f)) : 0;
 	P = n > 2 ? S * sqrt(n - 2.f) : 0;
 	Q = n > 0 ? S * sqrt((float)n) : 0;
+	P2 = P * P;
+	Q2 = Q * Q;
 
 	set_magnetic_field(0);
 }
@@ -248,10 +250,10 @@ void SQWHSolver::eq(int k, int* idx, float **s, float **y) const
 		s[5][EQ] = d[5] - h * mh * (a[9] - sH * P * a[4]);
 
 		float phy = pscale * (pot[k] + pot[k-1]) / 2;
-		float E0 = (A*n0 - ml*Q*Q - 3*p.K/2)*H + phy - a[10];
-		float E1 = (B*n1 - mh*Q*Q -   p.K/2)*H + phy - a[10];
-		float E2 = (B*n2 - mh*P*P +   p.K/2)*H + phy - a[10];
-		float E3 = (A*n3 - ml*P*P + 3*p.K/2)*H + phy - a[10];
+		float E0 = (A*n0 - ml*Q2 - 3*p.K/2)*H + phy - a[10];
+		float E1 = (B*n1 - mh*Q2 -   p.K/2)*H + phy - a[10];
+		float E2 = (B*n2 - mh*P2 +   p.K/2)*H + phy - a[10];
+		float E3 = (A*n3 - ml*P2 + 3*p.K/2)*H + phy - a[10];
 	
 		s[6][EQ] = d[6] - h * (E0 * a[2] + sH * ml * Q * a[7] - H * N * a[4]);
 		s[7][EQ] = d[7] - h * (E1 * a[3] - sH * mh * Q * a[6] - H * M * a[5]);

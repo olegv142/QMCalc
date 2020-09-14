@@ -78,5 +78,5 @@ protected:
 	float A, B;
 	float n0, n1, n2, n3;
 	float M, N;
-	float P, Q;
+	float P, Q, P2, Q2;
 };
