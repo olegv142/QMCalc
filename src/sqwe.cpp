@@ -24,6 +24,7 @@
 
 DefineErrorMess( SQWE_OUT, "Can't write output file" );
 DefineErrorMess( SQWE_QNCH, "Wavefunction quench" );
+DefineErrorMess( SQWE_CONV, "Failed to converge" );
 
 void GetSQWEParams(struct SQWEParams& p, TExpression const& e)
 {
@@ -168,10 +169,12 @@ void SQWESolver::esolve(float precision)
 {
 	assert( yg );
 	assert( p.subbands <= 1 || ys );
-	solvde( eq0cb, ITMAX, precision, SLOWC, scalv0, indexv, ENE0, ENB0, p.M, yg, c, s, NULL, this );
+	if (solvde( eq0cb, ITMAX, precision, SLOWC, scalv0, indexv, ENE0, ENB0, p.M, yg, c, s, NULL, this ) > ITMAX)
+		Signal( SQWE_CONV );
 	checkZeroes( 0, precision );
 	for( unsigned i = 1 ; i < p.subbands ; i++ ) {
-		solvde( eq1cb, ITMAX, precision, SLOWC, scalvs, indexv, ENE1, ENB1, p.M, ys[i], c, s, NULL, this );
+		if (solvde( eq1cb, ITMAX, precision, SLOWC, scalvs, indexv, ENE1, ENB1, p.M, ys[i], c, s, NULL, this ) > ITMAX)
+			Signal( SQWE_CONV );
 		checkZeroes( i, precision );
 	}
 }

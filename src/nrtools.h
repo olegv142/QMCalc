@@ -2,8 +2,6 @@
 
 #include "errs.h"
 
-ErrorCode( SOLVDE_IT );
-
 typedef void (*DiffEqCb)( int, int*, float**, float**, void* );
 
 int solvde( DiffEqCb difeq, int itmax, float conv, float slowc, float scalv[], int indexv[],

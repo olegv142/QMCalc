@@ -36,8 +36,6 @@ The NB left boundary conditions must contain some dependence on the first NB
 dependent variables. If not, then the total matrix will appear to be singular
 and the method will fail. */
 
-DefineErrorMess( SOLVDE_IT, "Too many iterations in solvde()" );
-
 int solvde( DiffEqCb difeq, int itmax, float conv, float slowc, float scalv[], int indexv[],
 	int ne, int nb, int m, float **y, float ***c, float **s, FILE *debug, void* ctx )
 {
@@ -113,15 +111,11 @@ int solvde( DiffEqCb difeq, int itmax, float conv, float slowc, float scalv[], i
 			fprintf( debug, "*%8s %9s %9s\n", "Iter.", "Error", "FAC" ); /* Summary */
 			fprintf( debug, "*%6d %12.6f %11.6f\n", it, err, fac );
 		}
-		if( err < conv ) {
-			free_vector( ermax, 1, ne );
-			free_ivector( kmax, 1, ne );
-			return it;
-		}
+		if( err < conv )
+			break;
 	}
 	free_vector( ermax, 1, ne );
 	free_ivector( kmax, 1, ne );
-	Signal( SOLVDE_IT );  /* Convergence failed */
 	return it;
 }
 

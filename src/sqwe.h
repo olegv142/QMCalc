@@ -27,6 +27,7 @@ void GetSQWEParams(struct SQWEParams& p, TExpression const& e);
 
 ErrorCode( SQWE_OUT );
 ErrorCode( SQWE_QNCH );
+ErrorCode( SQWE_CONV );
 
 class SQWESolver {
 public:
