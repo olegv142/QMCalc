@@ -8,10 +8,7 @@ struct SQWHParams {
 	unsigned M;          // The number of grid points (in z direction)
 	unsigned NL;         // Number of cyclotron levels computed
 	unsigned subband;    // The quantized subband computed (zero based)
-	unsigned psteps;     // Number of steps for potential turning on
-	float    W;          // SQW width in the units of model region width
-	float    hb0;        // Barriers height to the left  of the well (in dimensionless units)
-	float    hb1;        // Barriers height to the right of the well (in dimensionless units)
+	float    hb;         // Barriers height in dimensionless units
 	float    Bstep;      // Magnetic field step (in dimensionless units)
 	unsigned Bsteps;     // Magnetic field steps (so B varies from 0 to B_step * B_steps)
 	float    Eo;         // Energy scale in output files
@@ -26,6 +23,7 @@ void GetSQWHParams(struct SQWHParams& p, TExpression const& e);
 
 ErrorCode( SQWH_OUT );
 ErrorCode( SQWH_QNCH );
+ErrorCode( SQWH_CONV );
 
 class SQWHSolver {
 public:
@@ -37,9 +35,9 @@ public:
 
 protected:
 	void init_guess(unsigned spin);
-	void init_level(unsigned lvl);
-	void set_magnetic_field(float field);
+	void set_params(unsigned lvl, float field);
 	void init_derivative_matrix();
+	void init_boundary_matrix();
 
 	void solve_once(unsigned spin, float precision);
 	void solve_zero_field();
@@ -47,24 +45,24 @@ protected:
 
 	unsigned count_zeros(unsigned spin, float precision) const;
 	void save_wavefunction(float **f, const std::string& filename) const;
-	void save_level(float **e, const std::string& filename) const;
+	void save_levels(const std::string& filename) const;
 
 	void eq(int k, int* idx, float **s, float **y) const;
 	static void eq_cb(int k, int* idx, float **s, float **y, void* ctx);
 
 	struct SQWHParams p; // Model parameters
 
-	float **y;    // Solution vector at grid points y[1..10][1..M]
-	float **s;    // Derivative array
-	float ***c;   // Auxiliary array for temporary storage
+	float **y;      // Solution vector at grid points y[1..10][1..M]
+	float **s;      // Derivative array
+	float ***c;     // Auxiliary array for temporary storage
 
 	// Auxiliary arrays
-	float *pot;    // Potential array
-	float *scalv;  // Scaling array
-	int   *indexv; // Index array
+	float *scalv;   // Scaling array
+	int   *indexv;  // Index array
 
-	float **z[4];  // Zero field solutions
-	float ***e;     // Energy results [cyclotron_level][field][spin]
+	float  **sol_z[4];   // Zero field solutions
+	float ***sol_h[4];  // High field solutions
+	float ***sol_e;     // Energy results [cyclotron_level][field][spin]
 
 	// Current parameters
 	float    pscale; // Potential scaling factor
@@ -72,6 +70,8 @@ protected:
 	float    H;      // Magnetic field
 	float    sH;     // sqrt(H)
 	float   **D;     // Derivative matrix
+	float   **B0;    // Left boundary matrix
+	float   **B1;    // Right boundary matrix
 
 	// Derived parameters
 	float mh, ml;

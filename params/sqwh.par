@@ -1,26 +1,24 @@
-grid = 201;
+grid = 51;
 psteps = grid;
 subband = 0;
-NL = 1;
+NL = 2;
 
-W = 200;
-Z = W + W / 2;
-W = W / Z;
+Z = 200;
 
 E0 = 7.63 / Z ^ 2;
 Eo = 1000 * E0;
 
 B0 = (256 / Z) ^ 2;
 Bstep = .1 / B0;
-Bsteps = 10;
+Bsteps = 50;
 Bo = B0;
 
-hb1 = hb0 = .1 / E0;
+hb = .015 / E0;
 
-g1 = 6.85;
-g2 = 2.1;
-g3 = 2.9;
-K  = 1.2;
+g1 = 6.98;
+g2 = 2.06;
+g3 = 2.93;
+K  = 1.7;
 
 prec = 1e-3;
 
@@ -33,7 +31,7 @@ prec = 1e-3;
 	W              SQW width in the units of Z
 	E0             Energy unit ( eV )
 	Eo             Energy scale in output files
-	hb0/1          Barriers height ( 0-left, 1-right )
+	hb             Barriers height
 	B0             Magnetic field unit (when magnetic length equal to Z)
 	Bstep          Magnetic field step in the B0 units
 	Bsteps         Magnetic field steps (so B varies from 0 to B_step * B_steps)
