@@ -35,8 +35,7 @@ public:
 
 protected:
 	void init_guess(unsigned spin);
-	void set_params(unsigned lvl, float field);
-	void init_derivative_matrix();
+	void set_params(unsigned n, float field);
 	void init_boundary_matrix();
 
 	void solve_once(unsigned spin, float precision);
@@ -47,8 +46,9 @@ protected:
 	void save_wavefunction(float **f, const std::string& filename) const;
 	void save_levels(const std::string& filename) const;
 
-	void eq(int k, int* idx, float **s, float **y) const;
 	static void eq_cb(int k, int* idx, float **s, float **y, void* ctx);
+	void eq(int k, int* idx, float **s, float **y) const;
+	void get_derivatives(float *a, float **D, int shift, float mult) const;
 
 	struct SQWHParams p; // Model parameters
 
@@ -66,17 +66,13 @@ protected:
 
 	// Current parameters
 	float    pscale; // Potential scaling factor
-	unsigned n;      // Landau level number
 	float    H;      // Magnetic field
 	float    sH;     // sqrt(H)
-	float   **D;     // Derivative matrix
 	float   **B0;    // Left boundary matrix
 	float   **B1;    // Right boundary matrix
 
 	// Derived parameters
 	float mh, ml;
-	float A, B;
-	float n0, n1, n2, n3;
-	float M, N;
-	float P, Q, P2, Q2;
+	float E0, E1, E2, E3;
+	float A, B, M, N, P, Q;
 };

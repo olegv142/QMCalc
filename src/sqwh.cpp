@@ -66,7 +66,6 @@ SQWHSolver::SQWHSolver(struct SQWHParams const& params)
 	}
 	scalv[NE] = 1 / (ml + mh);
 
-	D  = matrix( 1, NE, 1, NE );
 	B0 = matrix( 1, 8, 1, 8 );
 	B1 = matrix( 1, 8, 1, 8 );
 
@@ -89,7 +88,6 @@ SQWHSolver::~SQWHSolver()
 	free_f3tensor( c, 1, NE, 1, NE - NB + 1, 1, p.M + 1 );
 	free_vector( scalv, 1, NE );
 	free_ivector( indexv, 1, NE );
-	free_matrix( D, 1, NE, 1, NE );
 	free_matrix( B0, 1, 8, 1, 8 );
 	free_matrix( B1, 1, 8, 1, 8 );
 	for (unsigned i = 0; i < 4; ++i) {
@@ -117,26 +115,27 @@ void SQWHSolver::init_guess(unsigned spin)
 	}
 }
 
-void SQWHSolver::set_params(unsigned lvl, float field)
+void SQWHSolver::set_params(unsigned n, float field)
 {
-	n  = lvl;
-	n0 = lvl + .5f;
-	n1 = lvl > 0 ? lvl - 1 + .5f : 0;
-	n2 = lvl > 1 ? lvl - 2 + .5f : 0;
-	n3 = lvl > 2 ? lvl - 3 + .5f : 0;
-
+	float n0 = n + .5f;
+	float n1 = n > 0 ? n - 1 + .5f : 0;
+	float n2 = n > 1 ? n - 2 + .5f : 0;
+	float n3 = n > 2 ? n - 3 + .5f : 0;
 	float R = sqrt(3.f) * (p.g2 + p.g3) / 2;
 	float S = sqrt(3/2.f) * p.g3;
+
 	M = n > 2 ? R * sqrt((n - 1.f)*(n - 2.f)) : 0;
 	N = n > 1 ? R * sqrt(n*(n - 1.f)) : 0;
 	P = n > 2 ? S * sqrt(n - 2.f) : 0;
 	Q = n > 0 ? S * sqrt((float)n) : 0;
-	P2 = P * P;
-	Q2 = Q * Q;
 
 	H = field;
 	sH = sqrt(field);
-	init_derivative_matrix();
+
+	E0 = (A*n0 - ml*Q*Q - 3*p.K/2)*H;
+	E1 = (B*n1 - mh*Q*Q -   p.K/2)*H;
+	E2 = (B*n2 - mh*P*P +   p.K/2)*H;
+	E3 = (A*n3 - ml*P*P + 3*p.K/2)*H;
 }
 
 void SQWHSolver::Solve()
@@ -195,10 +194,8 @@ and the method will fail.
 */
 void SQWHSolver::eq(int k, int* idx, float **s, float **y) const
 {
-	int i, j;
-
+	int i;
 	clear_matrix( s, 1, NE, 1, 2 * NE + 1 );
-
 #define EQ (2*NE+1)
 	if( k == 1 ) {
 		// The y[1] = 0 at left boundary
@@ -250,66 +247,53 @@ void SQWHSolver::eq(int k, int* idx, float **s, float **y) const
 		s[3][EQ] = d[3] - h * ml * (a[7] + sH * Q * a[2]);
 		s[4][EQ] = d[4] - h * ml * (a[8] + sH * P * a[5]);
 		s[5][EQ] = d[5] - h * mh * (a[9] - sH * P * a[4]);
-
-		float E0 = (A*n0 - ml*Q2 - 3*p.K/2)*H - a[10];
-		float E1 = (B*n1 - mh*Q2 -   p.K/2)*H - a[10];
-		float E2 = (B*n2 - mh*P2 +   p.K/2)*H - a[10];
-		float E3 = (A*n3 - ml*P2 + 3*p.K/2)*H - a[10];
-
-		s[6][EQ] = d[6] + h * (-E0 * a[2] + sH * ml * Q * a[7] - H * N * a[4]);
-		s[7][EQ] = d[7] + h * (-E1 * a[3] - sH * mh * Q * a[6] - H * M * a[5]);
-		s[8][EQ] = d[8] + h * (-E2 * a[4] - sH * mh * P * a[9] - H * N * a[2]);
-		s[9][EQ] = d[9] + h * (-E3 * a[5] + sH * ml * P * a[8] - H * M * a[3]);
-
+		s[6][EQ] = d[6] + h * ((a[10]-E0) * a[2] + sH * ml * Q * a[7] - H * N * a[4]);
+		s[7][EQ] = d[7] + h * ((a[10]-E1) * a[3] - sH * mh * Q * a[6] - H * M * a[5]);
+		s[8][EQ] = d[8] + h * ((a[10]-E2) * a[4] - sH * mh * P * a[9] - H * N * a[2]);
+		s[9][EQ] = d[9] + h * ((a[10]-E3) * a[5] + sH * ml * P * a[8] - H * M * a[3]);
 		s[10][EQ] = d[10];
 
 		// Fill derivatives
-		// Copy constant elements from pre-calculated D matrix first
-		for (i = 1; i <= NE; ++i)
-			for (j = 1; j <= NE; ++j)
-				if (i != j)
-					s[i][j] = s[i][NE+j] = h2 * D[i][j];
-
-		// Fill solution-dependent elements 
-		s[1][2] = s[1][NE+2] = -h * a[2];
-		s[1][3] = s[1][NE+3] = -h * a[3];
-		s[1][4] = s[1][NE+4] = -h * a[4];
-		s[1][5] = s[1][NE+5] = -h * a[5];
-
-		s[6][2] = s[6][NE+2] = -h2 * E0;
-		s[7][3] = s[7][NE+3] = -h2 * E1;
-		s[8][4] = s[8][NE+4] = -h2 * E2;
-		s[9][5] = s[9][NE+5] = -h2 * E3;
-
-		s[6][10] = s[6][NE+10] = h2 * a[2];
-		s[7][10] = s[7][NE+10] = h2 * a[3];
-		s[8][10] = s[8][NE+10] = h2 * a[4];
-		s[9][10] = s[9][NE+10] = h2 * a[5];
+		get_derivatives(a, s, 0,  h2);
+		get_derivatives(a, s, NE, h2);
 	}
 }
 
-void SQWHSolver::init_derivative_matrix()
+void SQWHSolver::get_derivatives(float *a, float **D, int shift, float mult) const
 {
-	clear_matrix(D, 1, NE, 1, NE);
+	D[1][shift+2] = -2 * a[2] * mult;
+	D[1][shift+3] = -2 * a[3] * mult;
+	D[1][shift+4] = -2 * a[4] * mult;
+	D[1][shift+5] = -2 * a[5] * mult;
 
-	D[2][6] = -mh;
-	D[3][7] = -ml;
-	D[4][8] = -ml;
-	D[5][9] = -mh;
+	D[2][shift+6] = -mh * mult;
+	D[3][shift+7] = -ml * mult;
+	D[4][shift+8] = -ml * mult;
+	D[5][shift+9] = -mh * mult;
 
-	D[2][3] =  sH * mh * Q;
-	D[3][2] = -sH * ml * Q;
-	D[4][5] = -sH * ml * P;
-	D[5][4] =  sH * mh * P;
-	D[6][7] =  sH * ml * Q;
-	D[7][6] = -sH * mh * Q;
-	D[8][9] = -sH * mh * P;
-	D[9][8] =  sH * ml * P;
+	D[2][shift+3] =  sH * mh * Q * mult;
+	D[3][shift+2] = -sH * ml * Q * mult;
+	D[4][shift+5] = -sH * ml * P * mult;
+	D[5][shift+4] =  sH * mh * P * mult;
+	D[6][shift+7] =  sH * ml * Q * mult;
+	D[7][shift+6] = -sH * mh * Q * mult;
+	D[8][shift+9] = -sH * mh * P * mult;
+	D[9][shift+8] =  sH * ml * P * mult;
 	
-	D[6][4] = -H * N;
-	D[7][5] = -H * M;
-	D[8][2] = -H * N;
-	D[9][3] = -H * M;	
+	D[6][shift+4] = -H * N * mult;
+	D[7][shift+5] = -H * M * mult;
+	D[8][shift+2] = -H * N * mult;
+	D[9][shift+3] = -H * M * mult;
+
+	D[6][shift+2] = (a[10]-E0) * mult;
+	D[7][shift+3] = (a[10]-E1) * mult;
+	D[8][shift+4] = (a[10]-E2) * mult;
+	D[9][shift+5] = (a[10]-E3) * mult;
+
+	D[6][shift+10] = a[2] * mult;
+	D[7][shift+10] = a[3] * mult;
+	D[8][shift+10] = a[4] * mult;
+	D[9][shift+10] = a[5] * mult;
 }
 
 void SQWHSolver::init_boundary_matrix()
@@ -335,10 +319,10 @@ void SQWHSolver::init_boundary_matrix()
 	m[8][2] = -H*M;
 
 	float E = y[NE][1] - p.hb;
-	m[5][1] = -(A*n0 - ml*Q2 - 3*p.K/2)*H + E;
-	m[6][2] = -(B*n1 - mh*Q2 -   p.K/2)*H + E;
-	m[7][3] = -(B*n2 - mh*P2 +   p.K/2)*H + E;
-	m[8][4] = -(A*n3 - ml*P2 + 3*p.K/2)*H + E;
+	m[5][1] = E - E0;
+	m[6][2] = E - E1;
+	m[7][3] = E - E2;
+	m[8][4] = E - E3;
 
 	emod(m, 8, p.prec, ITMAX, B0);
 	copy_matrix(B0, B1, 1, 8, 1, 8, 1, 1);
