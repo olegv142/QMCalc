@@ -23,10 +23,10 @@ unsigned count_zeros(float const *f, int l, int r, float delta)
 	return cnt;
 }
 
-/* Find matrix m[1..n][1..n] with the set of eigenvalues that may differ from eigenvalues of a[r..r+n-1][c..c+n-1]
+/* Find matrix m[1..n][1..n] with the set of eigenvalues that may differ from eigenvalues of a[1..n][1..n]
  * by the sign of the real part such that all m eigenvalues have positive real part.
  */
-void emod(float const * const *a, int r, int c, int n, float conv, int itmax, float **m)
+void emod(float const * const *a, int n, float conv, int itmax, float **m)
 {
 	float ** mi = matrix(1, n, 1, n);
 	float ** a2 = matrix(1, n, 1, n);
@@ -34,20 +34,20 @@ void emod(float const * const *a, int r, int c, int n, float conv, int itmax, fl
 	int i, j, k, it;
 
 	clear_matrix(m, 1, n, 1, n);
-	for (i = 0; i < n; ++i)
+	for (i = 1; i <= n; ++i)
 	{
 		sum = 0;
-		for (k = 0; k < n; ++k)
-			sum += fabs(a[r+i][c+k] * a[r+k][c+i]);
+		for (k = 1; k <= n; ++k)
+			sum += fabs(a[i][k] * a[k][i]);
 		// Build initial guess
-		m[1+i][1+i] = sqrt(sum);
-		for (j = 0; j < n; ++j)
+		m[i][i] = sqrt(sum);
+		for (j = 1; j <= n; ++j)
 		{
 			sum = 0;
-			for (k = 0; k < n; ++k)
-				sum += a[r+i][c+k] * a[r+k][c+j];
+			for (k = 1; k <= n; ++k)
+				sum += a[i][k] * a[k][j];
 			// Build a^2 matrix
-			a2[1+i][1+j] = sum;
+			a2[i][j] = sum;
 		}
 	}
 	/* Solve a^2 = m^2 equation using Babylonian iteration */
