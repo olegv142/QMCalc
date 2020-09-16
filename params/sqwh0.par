@@ -1,8 +1,6 @@
 grid = 101;
 psteps = grid;
 subband = 0;
-honly = 0;
-
 NL = 1;
 
 Z = 200;

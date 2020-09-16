@@ -8,7 +8,6 @@ struct SQWHParams {
 	unsigned M;          // The number of grid points (in z direction)
 	unsigned NL;         // Number of cyclotron levels computed
 	unsigned subband;    // The quantized subband computed (zero based)
-	bool     honly;      // Heavy holes only
 	float    hb;         // Barriers height in dimensionless units
 	float    Bstep;      // Magnetic field step (in dimensionless units)
 	unsigned Bsteps;     // Magnetic field steps (so B varies from 0 to B_step * B_steps)
@@ -50,8 +49,6 @@ protected:
 	static void eq_cb(int k, int* idx, float **s, float **y, void* ctx);
 	void eq(int k, int* idx, float **s, float **y) const;
 	void get_derivatives(float *a, float **D, int shift, float mult) const;
-
-	bool skip_light_hole(unsigned spin) const;
 
 	struct SQWHParams p; // Model parameters
 
