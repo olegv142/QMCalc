@@ -68,7 +68,6 @@ protected:
 	float ***sol_e;     // Energy results [cyclotron_level][field][spin]
 
 	// Current parameters
-	float    pscale; // Potential scaling factor
 	float    H;      // Magnetic field
 	float    sH;     // sqrt(H)
 	float   **B0;    // Left boundary matrix
