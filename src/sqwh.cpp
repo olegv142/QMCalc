@@ -32,6 +32,7 @@ void GetSQWHParams(struct SQWHParams& p, TExpression const& e)
 	p.M        = (unsigned)e.Get("grid");
 	p.NL       = (unsigned)e.Get("NL");
 	p.subband  = (unsigned)e.Get("subband");
+	p.honly    = (0 != e.Get("honly"));
 	p.hb       = (float   )e.Get("hb");
 	p.Bstep    = (float   )e.Get("Bstep");
 	p.Bsteps   = (unsigned)e.Get("Bsteps");
@@ -151,15 +152,19 @@ void SQWHSolver::SaveResults(const char* basename) const
 	bname += (char)('0' + p.subband);
 
 	save_wavefunction(sol_z[0], bname + "Z_hm.dat");
-	save_wavefunction(sol_z[1], bname + "Z_lm.dat");
-	save_wavefunction(sol_z[2], bname + "Z_lp.dat");
+	if (!p.honly) {
+		save_wavefunction(sol_z[1], bname + "Z_lm.dat");
+		save_wavefunction(sol_z[2], bname + "Z_lp.dat");
+	}
 	save_wavefunction(sol_z[3], bname + "Z_hp.dat");
 
 	bname += 'L';
 	for (unsigned l = 0; l < p.NL; ++l) {
 		save_wavefunction(sol_h[0][l], bname + (char)('0' + l) + "_hm.dat");
-		save_wavefunction(sol_h[1][l], bname + (char)('0' + l) + "_lm.dat");
-		save_wavefunction(sol_h[2][l], bname + (char)('0' + l) + "_lp.dat");
+		if (!p.honly) {
+			save_wavefunction(sol_h[1][l], bname + (char)('0' + l) + "_lm.dat");
+			save_wavefunction(sol_h[2][l], bname + (char)('0' + l) + "_lp.dat");
+		}
 		save_wavefunction(sol_h[3][l], bname + (char)('0' + l) + "_hp.dat");
 	}
 
@@ -355,6 +360,8 @@ void SQWHSolver::solve_zero_field()
 {
 	set_params(0, 0);
 	for ( unsigned spin = 0; spin < 4; ++spin ) {
+		if (skip_light_hole(spin))
+			continue;
 		init_guess(spin);
 		solve_once(spin, p.prec);
 		copy_matrix(y, sol_z[spin], 1, NE, 1, p.M, 1, 1);
@@ -364,6 +371,8 @@ void SQWHSolver::solve_zero_field()
 void SQWHSolver::solve_level(unsigned l)
 {
 	for ( unsigned spin = 0; spin < 4; ++spin ) {
+		if (skip_light_hole(spin))
+			continue;
 		copy_matrix(sol_z[spin], y, 1, NE, 1, p.M, 1, 1);
 		for ( unsigned b = 0; b <= p.Bsteps; ++b ) {
 			set_params(l + spin, b * p.Bstep);
@@ -402,9 +411,16 @@ void SQWHSolver::save_levels(const std::string& filename) const
 	for ( unsigned b = 0; b <= p.Bsteps; ++b ) {
 		out << b * p.Bstep * p.Bo;
 		for (unsigned l = 0; l < p.NL; ++l)
-			for ( unsigned spin = 0; spin < 4; ++spin )
+			for ( unsigned spin = 0; spin < 4; ++spin ) {
+				if (skip_light_hole(spin))
+					continue;
 				out << ' ' << sol_e[l][b][spin] * p.Eo;
+			}
 		out << std::endl;
 	}
 }
 
+bool SQWHSolver::skip_light_hole(unsigned spin) const
+{
+	return p.honly && (spin == 1 || spin == 2);
+}
