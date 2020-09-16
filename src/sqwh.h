@@ -45,12 +45,15 @@ protected:
 
 	unsigned count_zeros(unsigned spin, float precision) const;
 	void save_wavefunction(float **f, const std::string& filename) const;
+	void save_wavefunctions(unsigned n, unsigned b, const std::string& bname) const;
 	void save_levels(const std::string& filename) const;
 
 	static void eq_cb(int k, int* idx, float **s, float **y, void* ctx);
 	void eq(int k, int* idx, float **s, float **y) const;
 	void get_derivatives(float *a, float **D, int shift, float mult) const;
-	void get_equation(float **m, float pot);
+	void get_equation(float **m, float E) const;
+	float barrier_integral(float const fb[8], float E) const;
+	void solution_normalize(float **f, float e);
 
 	bool skip_light_hole(unsigned spin) const;
 
@@ -64,9 +67,10 @@ protected:
 	float *scalv;   // Scaling array
 	int   *indexv;  // Index array
 
-	float  **sol_z[4];   // Zero field solutions
-	float ***sol_h[4];  // High field solutions
-	float ***sol_e;     // Energy results [cyclotron_level][field][spin]
+	// Solutions, the [4] index is spin
+	float  **sol_z[4];  // Zero field solutions
+	float ****sol_f[4]; // Wavefunctions for different levels and field values
+	float **sol_e[4];   // Energy eigenvalues [cyclotron_level][field]
 
 	// Current parameters
 	float    H;      // Magnetic field
