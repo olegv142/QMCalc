@@ -301,10 +301,9 @@ void SQWHSolver::get_derivatives(float *a, float **D, int shift, float mult) con
 	D[9][shift+10] = a[5] * mult;
 }
 
-void SQWHSolver::init_boundary_matrix()
+// Get equation matrix for the particular potential value
+void SQWHSolver::get_equation(float **m, float pot)
 {
-	int i, j;
-	float **m = matrix(1, 8, 1, 8);
 	clear_matrix(m, 1, 8, 1, 8);
 
 	// Build matrix for equation y' + m*y = 0
@@ -323,12 +322,18 @@ void SQWHSolver::init_boundary_matrix()
 	m[7][1] = -H*N;
 	m[8][2] = -H*M;
 
-	float E = y[NE][1] - p.hb;
+	float E = y[NE][1] - pot;
 	m[5][1] = E - E0;
 	m[6][2] = E - E1;
 	m[7][3] = E - E2;
 	m[8][4] = E - E3;
+}
 
+void SQWHSolver::init_boundary_condition()
+{
+	int i, j;
+	float **m = matrix(1, 8, 1, 8);
+	get_equation(m, p.hb);
 	emod(m, 8, p.prec, ITMAX, B0);
 	copy_matrix(B0, B1, 1, 8, 1, 8, 1, 1);
 	for (i = 1; i <= 8; ++i)
@@ -348,7 +353,7 @@ void SQWHSolver::eq_cb(int k, int* idx, float **s, float **y, void* ctx)
 void SQWHSolver::solve_once(unsigned spin, float precision)
 {
 	for (int it_max = 1;; it_max *= 2) {
-		init_boundary_matrix();
+		init_boundary_condition();
 		if (solvde( eq_cb, it_max, precision, SLOWC * p.M, scalv, indexv, NE, NB, p.M, y, c, s, NULL, this ) <= it_max)
 			break;
 		if (it_max >= ITMAX)

@@ -37,7 +37,7 @@ public:
 protected:
 	void init_guess(unsigned spin);
 	void set_params(unsigned n, float field);
-	void init_boundary_matrix();
+	void init_boundary_condition();
 
 	void solve_once(unsigned spin, float precision);
 	void solve_zero_field();
@@ -50,6 +50,7 @@ protected:
 	static void eq_cb(int k, int* idx, float **s, float **y, void* ctx);
 	void eq(int k, int* idx, float **s, float **y) const;
 	void get_derivatives(float *a, float **D, int shift, float mult) const;
+	void get_equation(float **m, float pot);
 
 	bool skip_light_hole(unsigned spin) const;
 
