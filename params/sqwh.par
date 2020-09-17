@@ -2,7 +2,7 @@ grid = 51;
 psteps = grid;
 subband = 0;
 honly = 0;
-NL = 2;
+NL = 3;
 
 Z = 200;
 

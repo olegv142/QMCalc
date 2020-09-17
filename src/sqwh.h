@@ -46,14 +46,15 @@ protected:
 	unsigned count_zeros(unsigned spin, float precision) const;
 	void save_wavefunction(float **f, const std::string& filename) const;
 	void save_wavefunctions(unsigned n, unsigned b, const std::string& bname) const;
-	void save_levels(const std::string& filename) const;
+	void save_levels(const std::string& filename, bool with_intensity) const;
 
 	static void eq_cb(int k, int* idx, float **s, float **y, void* ctx);
-	void eq(int k, int* idx, float **s, float **y) const;
-	void get_derivatives(float *a, float **D, int shift, float mult) const;
-	void get_equation(float **m, float E) const;
+	void  eq(int k, int* idx, float **s, float **y) const;
+	void  get_derivatives(float *a, float **D, int shift, float mult) const;
+	void  get_equation(float **m, float E) const;
 	float barrier_integral(float const fb[8], float E) const;
-	void solution_normalize(float **f, float e);
+	void  solution_normalize(float **f, float e);
+	float get_intensity(float **f, unsigned n0) const;
 
 	bool skip_light_hole(unsigned spin) const;
 

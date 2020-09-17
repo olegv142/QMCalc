@@ -153,7 +153,8 @@ void SQWHSolver::SaveResults(const char* basename) const
 	bname += 'L';
 	for (unsigned l = 0; l < p.NL; ++l)
 		save_wavefunctions(l, p.Bsteps, bname + (char)('0' + l));
-	save_levels(bname + ".dat");
+	save_levels(bname + ".dat", false);
+	save_levels(bname + "I.dat", true);
 }
 
 // Count zeros for the particular spin component s = 0..3
@@ -457,7 +458,24 @@ void SQWHSolver::save_wavefunction(float **f, const std::string& filename) const
 	out.close();
 }
 
-void SQWHSolver::save_levels(const std::string& filename) const
+float SQWHSolver::get_intensity(float **f, unsigned n0) const
+{
+	if (n0 > 3)
+		return 0;
+	float I = 0;
+	for( unsigned k = 1 ; k <= p.M ;  k++ ) {
+		float z = ( k - 1.f ) / ( p.M - 1.f );
+		float fe = (float)sin(M_PI * z);
+		I += fe * f[1+n0][k];
+	}
+	if (n0 == 0 || n0 == 3)
+		I *= 3;
+	// Normalize so that the maximum intensity (heavy hole) will be 1;
+	I /= 3 * p.M;
+	return 2 * (I * I);
+}
+
+void SQWHSolver::save_levels(const std::string& filename, bool with_intensity) const
 {
 	std::ofstream out( filename.c_str(), std::ios::trunc );
 	check3( out, SQWH_OUT, filename );
@@ -468,6 +486,8 @@ void SQWHSolver::save_levels(const std::string& filename) const
 				if (skip_light_hole(spin))
 					continue;
 				out << ' ' << sol_e[spin][l][b] * p.Eo;
+				if (with_intensity)
+					out << ' ' << get_intensity(sol_f[spin][l][b], l + spin);
 			}
 		out << std::endl;
 	}
