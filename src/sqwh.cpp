@@ -477,8 +477,20 @@ float SQWHSolver::get_intensity(float **f, unsigned n0) const
 
 void SQWHSolver::save_levels(const std::string& filename, bool with_intensity) const
 {
+	const char* spin_label[] = {"hm", "lm", "lp", "hp"};
 	std::ofstream out( filename.c_str(), std::ios::trunc );
 	check3( out, SQWH_OUT, filename );
+	out << "\"B[T]";
+	for (unsigned l = 0; l < p.NL; ++l)
+		for ( unsigned spin = 0; spin < 4; ++spin ) {
+			if (skip_light_hole(spin))
+				continue;
+			out << " L" << (char)('0' + l) << spin_label[spin];
+			if (with_intensity)
+				out << " IL" << (char)('0' + l) << spin_label[spin]
+					<< ((l + spin) % 4 < 2 ? '-' : '+');
+		}
+	out << std::endl;
 	for ( unsigned b = 0; b <= p.Bsteps; ++b ) {
 		out << b * p.Bstep * p.Bo;
 		for (unsigned l = 0; l < p.NL; ++l)
