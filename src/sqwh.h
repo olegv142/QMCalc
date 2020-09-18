@@ -15,7 +15,9 @@ struct SQWHParams {
 	float    Eo;         // Energy scale in output files
 	float    Bo;         // Magnetic field scale in output files
 	float    g1, g2, g3, K; // Luttinger parameters
-	float    prec;     // Solving precision
+	float    e_cyc;      // Electron cyclotron energy slope (for transition energy calculation)
+	float    e_spin;     // Electron spin splitting slope (for transition energy calculation)
+	float    prec;       // Solving precision
 };
 
 class TExpression;
@@ -46,7 +48,7 @@ protected:
 	unsigned count_zeros(unsigned spin, float precision) const;
 	void save_wavefunction(float **f, const std::string& filename) const;
 	void save_wavefunctions(unsigned n, unsigned b, const std::string& bname) const;
-	void save_levels(const std::string& filename, bool with_intensity) const;
+	void save_levels(const std::string& filename, bool transitions) const;
 
 	static void eq_cb(int k, int* idx, float **s, float **y, void* ctx);
 	void  eq(int k, int* idx, float **s, float **y) const;

@@ -4,7 +4,7 @@ subband = 0;
 honly = 0;
 NL = 3;
 
-Z = 200;
+Z = 180;
 
 E0 = 7.63 / Z ^ 2;
 Eo = 1000 * E0;
@@ -14,12 +14,15 @@ Bstep = .1 / B0;
 Bsteps = 150;
 Bo = B0;
 
-hb = .015 / E0;
+hb = .1 / E0;
 
 g1 = 6.98;
 g2 = 2.06;
 g3 = 2.93;
 K  = 1.7;
+
+e_cyc = (.85/Eo)/(1/Bo);
+e_spin = (-.3*0.043/Eo)/(1/Bo);
 
 prec = 1e-3;
 
@@ -39,4 +42,6 @@ prec = 1e-3;
 	Bsteps         Magnetic field steps (so B varies from 0 to B_step * B_steps)
 	Bo             Magnetic field scale in output files
 	g1, g2, g3, K  Luttinger parameters
+	e_cyc          Electron cyclotron energy slope (for transition energy calculation)
+	e_spin         Electron spin splitting slope (for transition energy calculation)
 	prec           Solving precision

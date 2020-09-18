@@ -44,6 +44,8 @@ void GetSQWHParams(struct SQWHParams& p, TExpression const& e)
 	p.g2       = (float   )e.Get("g2");
 	p.g3       = (float   )e.Get("g3");
 	p.K        = (float   )e.Get("K");
+	p.e_cyc    = (float   )e.Get("e_cyc");
+	p.e_spin   = (float   )e.Get("e_spin");
 	p.prec     = (float   )e.Get("prec");
 }
 
@@ -154,7 +156,7 @@ void SQWHSolver::SaveResults(const char* basename) const
 	for (unsigned l = 0; l < p.NL; ++l)
 		save_wavefunctions(l, p.Bsteps, bname + (char)('0' + l));
 	save_levels(bname + ".dat", false);
-	save_levels(bname + "I.dat", true);
+	save_levels(bname + "x.dat", true);
 }
 
 // Count zeros for the particular spin component s = 0..3
@@ -471,11 +473,10 @@ float SQWHSolver::get_intensity(float **f, unsigned n0) const
 	if (n0 == 0 || n0 == 3)
 		I *= 3;
 	// Normalize so that the maximum intensity (heavy hole) will be 1;
-	I /= 3 * p.M;
-	return 2 * (I * I);
+	return sqrt(2.f) * fabs(I) / (3 * p.M);
 }
 
-void SQWHSolver::save_levels(const std::string& filename, bool with_intensity) const
+void SQWHSolver::save_levels(const std::string& filename, bool transitions) const
 {
 	const char* spin_label[] = {"hm", "lm", "lp", "hp"};
 	std::ofstream out( filename.c_str(), std::ios::trunc );
@@ -486,7 +487,7 @@ void SQWHSolver::save_levels(const std::string& filename, bool with_intensity) c
 			if (skip_light_hole(spin))
 				continue;
 			out << " L" << (char)('0' + l) << spin_label[spin];
-			if (with_intensity)
+			if (transitions)
 				out << " IL" << (char)('0' + l) << spin_label[spin]
 					<< ((l + spin) % 4 < 2 ? '-' : '+');
 		}
@@ -497,8 +498,11 @@ void SQWHSolver::save_levels(const std::string& filename, bool with_intensity) c
 			for ( unsigned spin = 0; spin < 4; ++spin ) {
 				if (skip_light_hole(spin))
 					continue;
-				out << ' ' << sol_e[spin][l][b] * p.Eo;
-				if (with_intensity)
+				float E = sol_e[spin][l][b];
+				if (transitions)
+					E += b * p.Bstep * p.e_cyc + ((spin % 2) - .5f) * p.e_spin;
+				out << ' ' << E * p.Eo;
+				if (transitions)
 					out << ' ' << get_intensity(sol_f[spin][l][b], l + spin);
 			}
 		out << std::endl;
