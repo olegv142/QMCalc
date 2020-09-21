@@ -8,7 +8,6 @@ struct SQWHParams {
 	unsigned M;          // The number of grid points (in z direction)
 	unsigned NL;         // Number of cyclotron levels computed
 	unsigned subband;    // The quantized subband computed (zero based)
-	bool     honly;      // Heavy holes only
 	float    hb;         // Barriers height in dimensionless units
 	float    Bstep;      // Magnetic field step (in dimensionless units)
 	unsigned Bsteps;     // Magnetic field steps (so B varies from 0 to B_step * B_steps)
@@ -57,8 +56,6 @@ protected:
 	float barrier_integral(float const fb[8], float E) const;
 	void  solution_normalize(float **f, float e);
 	float get_intensity(float **f, unsigned n0) const;
-
-	bool skip_light_hole(unsigned spin) const;
 
 	struct SQWHParams p; // Model parameters
 
