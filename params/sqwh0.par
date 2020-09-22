@@ -1,11 +1,13 @@
 grid = 101;
 psteps = grid;
 subband = 0;
-honly = 0;
 
 NL = 1;
 
 Z = 200;
+
+ef = 0;
+me = 1;
 
 E0 = 7.63 / Z ^ 2;
 Eo = 2 / (Pi ^ 2);
@@ -13,6 +15,7 @@ Eo = 2 / (Pi ^ 2);
 B0 = (256 / Z) ^ 2;
 Bstep = .1 / B0;
 Bsteps = 0;
+Bskip = 1;
 Bo = B0;
 
 hb = 1e8;

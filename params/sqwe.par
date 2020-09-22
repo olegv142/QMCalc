@@ -4,7 +4,7 @@ subbands = 2;
 W = 200;
 Z = W + W / 2;
 W = W / Z;
-Ne = 5;
+Ne = 1.8;
 rf = 0;
 eps = 12.5;
 ex = 0;
@@ -28,7 +28,7 @@ prec = 1e-3;
 	subbands Number of electron's subbands computed
 	Z        Model region ( A )
 	W        SQW width in the units of Z
-	Ne       Electron's surface dencity ( e11 )
+	Ne       Electron's surface density ( e11 )
 	E0       Energy unit ( eV )
 	Ro       Energy scale in output files
 	rf       Residual electric field constant

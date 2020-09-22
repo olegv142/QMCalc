@@ -1,24 +1,29 @@
 grid = 51;
 psteps = grid;
 subband = 0;
-honly = 0;
-NL = 3;
+NL = 4;
 
 Z = 180;
+
+Ne = .85;
+eps = 12.5;
+ef = 2.375e-4 * Ne * Z ^ 3 / eps;
+me = .0665;
 
 E0 = 7.63 / Z ^ 2;
 Eo = 1000 * E0;
 
 B0 = (256 / Z) ^ 2;
-Bstep = .1 / B0;
-Bsteps = 150;
+Bstep = .01 / B0;
+Bsteps = 16*100;
+Bskip = 10;
 Bo = B0;
 
 hb = .1 / E0;
 
-g1 = 6.98;
-g2 = 2.06;
-g3 = 2.93;
+g1 = 7.52;
+g2 = 2.48;
+g3 = 3.23;
 K  = 1.7;
 
 e_cyc = (.85/Eo)/(1/Bo);
@@ -30,16 +35,19 @@ prec = 1e-3;
 	grid	       Number of grid points
 	psteps         Number of steps for potential turning on
 	subband        The quantized subband computed (zero based)
-	honly          Heavy holes only if non zero
 	NL             Number of cyclotron levels computed
 	Z              Model region ( A )
-	W              SQW width in the units of Z
+	Ne             Electron's surface density ( times 10^11 )
+	eps            Dielectric constant
+	ef             Poisson equation factor (phy" + ef * psy^2 = 0)
+	me             Electrons effective mass
 	E0             Energy unit ( eV )
 	Eo             Energy scale in output files
 	hb             Barriers height
 	B0             Magnetic field unit (when magnetic length equal to Z)
 	Bstep          Magnetic field step in the B0 units
 	Bsteps         Magnetic field steps (so B varies from 0 to B_step * B_steps)
+	Bskip          Write one per Bskip B steps to output file
 	Bo             Magnetic field scale in output files
 	g1, g2, g3, K  Luttinger parameters
 	e_cyc          Electron cyclotron energy slope (for transition energy calculation)
