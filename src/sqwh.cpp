@@ -539,6 +539,7 @@ void SQWHSolver::solve_level(unsigned l)
 			sol_e[spin][l][b] = y[NE][1];
 			copy_matrix(y + 1, sol_f[spin][l][b], 1, NF, 1, p.M, 1, 1);
 			solution_normalize(sol_f[spin][l][b], y[NE][1]);
+			printf("*");
 		}
 	}
 }
