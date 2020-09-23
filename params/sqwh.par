@@ -3,9 +3,10 @@ psteps = grid;
 subband = 0;
 NL = 4;
 
-Z = 180;
+Z = 170;
 
 Ne = .85;
+e_side = 0;
 eps = 12.5;
 ef = 2.375e-4 * Ne * Z ^ 3 / eps;
 me = .0665;
@@ -19,7 +20,7 @@ Bsteps = 16*100;
 Bskip = 10;
 Bo = B0;
 
-hb = .1 / E0;
+hb = .2 / E0;
 
 g1 = 7.52;
 g2 = 2.48;
@@ -38,6 +39,7 @@ prec = 1e-3;
 	NL             Number of cyclotron levels computed
 	Z              Model region ( A )
 	Ne             Electron's surface density ( times 10^11 )
+	e_side         0 - doping at left side, 1 - doping at right side, .5 - equal doping at both sides
 	eps            Dielectric constant
 	ef             Poisson equation factor (phy" + ef * psy^2 = 0)
 	me             Electrons effective mass

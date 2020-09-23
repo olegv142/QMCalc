@@ -25,6 +25,7 @@ g2 = 0;
 g3 = 0;
 K  = 0;
 
+e_side = 0;
 e_cyc = 0;
 e_spin = 0;
 

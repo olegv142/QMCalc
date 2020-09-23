@@ -18,6 +18,7 @@ struct SQWHParams {
 	float    Eo;         // Energy scale in output files
 	float    Bo;         // Magnetic field scale in output files
 	float    g1, g2, g3, K; // Luttinger parameters
+	float    e_side;     // 0 - doping at left side, 1 - doping at right side, .5 - equal doping at both sides
 	float    e_cyc;      // Electron cyclotron energy slope (for transition energy calculation)
 	float    e_spin;     // Electron spin splitting slope (for transition energy calculation)
 	float    prec;       // Solving precision

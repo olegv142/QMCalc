@@ -48,6 +48,7 @@ void GetSQWHParams(struct SQWHParams& p, TExpression const& e)
 	p.g2       = (float   )e.Get("g2");
 	p.g3       = (float   )e.Get("g3");
 	p.K        = (float   )e.Get("K");
+	p.e_side   = (float   )e.Get("e_side");
 	p.e_cyc    = (float   )e.Get("e_cyc");
 	p.e_spin   = (float   )e.Get("e_spin");
 	p.prec     = (float   )e.Get("prec");
@@ -165,7 +166,7 @@ void SQWHSolver::eqe(int k, int* idx, float **s, float **y) const
 		s[4][3] = s[4][8]  = h2 * ( a[5] - a[1] );
 		s[4][5] = s[4][10] = h2 * a[3];
 
-		s[1][11] = d[1] + h * ef * ( a[2] - 1 );
+		s[1][11] = d[1] + h * ef * ( a[2] - 1 + p.e_side );
 		s[2][11] = d[2] - h * a[3] * a[3];
 		s[3][11] = d[3] - 2 * h * a[4] * p.me;
 		s[4][11] = d[4] + h * ( a[5] - a[1] ) * a[3];
