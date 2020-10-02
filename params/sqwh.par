@@ -3,7 +3,7 @@ psteps = grid;
 subband = 0;
 NL = 4;
 
-Z = 170;
+Z = 180;
 
 Ne = .85;
 e_side = 0;
@@ -20,7 +20,7 @@ Bsteps = 16*100;
 Bskip = 10;
 Bo = B0;
 
-hb = .2 / E0;
+hb = .1 / E0;
 
 g1 = 7.52;
 g2 = 2.48;

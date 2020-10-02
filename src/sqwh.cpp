@@ -589,9 +589,11 @@ void SQWHSolver::save_levels(const std::string& filename, bool transitions) cons
 	for (unsigned l = 0; l < p.NL; ++l)
 		for ( unsigned spin = 0; spin < 4; ++spin ) {
 			out << " L" << (char)('0' + l) << spin_label[spin];
-			if (transitions)
+			if (transitions) {
 				out << " IL" << (char)('0' + l) << spin_label[spin]
-					<< ((l + spin) % 4 < 2 ? '-' : '+');
+					<< ((l + spin) % 4 < 2 ? "s-" : "s+") // polarization
+					<< ((l + spin) % 2 < 1 ? "e-" : "e+");// electron spin
+			}
 		}
 	out << std::endl;
 	for ( unsigned b = 0; b <= p.Bsteps; b += p.Bskip ) {
@@ -600,7 +602,7 @@ void SQWHSolver::save_levels(const std::string& filename, bool transitions) cons
 			for ( unsigned spin = 0; spin < 4; ++spin ) {
 				float E = sol_e[spin][l][b];
 				if (transitions)
-					E += b * p.Bstep * (p.e_cyc + ((spin % 2) - .5f) * p.e_spin);
+					E += b * p.Bstep * (p.e_cyc + (((l + spin) % 2) - .5f) * p.e_spin);
 				out << ' ' << E * p.Eo;
 				if (transitions)
 					out << ' ' << get_intensity(sol_f[spin][l][b], l + spin);

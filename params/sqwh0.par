@@ -2,7 +2,7 @@ grid = 101;
 psteps = grid;
 subband = 0;
 
-NL = 1;
+NL = 2;
 
 Z = 200;
 
@@ -14,7 +14,7 @@ Eo = 2 / (Pi ^ 2);
 
 B0 = (256 / Z) ^ 2;
 Bstep = .1 / B0;
-Bsteps = 0;
+Bsteps = 10;
 Bskip = 1;
 Bo = B0;
 
