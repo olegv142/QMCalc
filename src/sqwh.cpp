@@ -248,8 +248,9 @@ void SQWHSolver::SaveResults(const char* basename) const
 	bname += 'L';
 	for (unsigned l = 0; l < p.NL; ++l)
 		save_wavefunctions(l, p.Bsteps, bname + (char)('0' + l));
-	save_levels(bname + ".dat", false);
-	save_levels(bname + "x.dat", true);
+	save_levels(bname + ".dat", false, false);
+	save_levels(bname + "x.dat", true, false);
+	save_levels(bname + "xx.dat", true, true);
 }
 
 /*
@@ -557,6 +558,15 @@ void SQWHSolver::save_wavefunction(float **f, const std::string& filename) const
 {
 	std::ofstream out( filename.c_str(), std::ios::trunc );
 	check3( out, SQWH_OUT, filename );
+	float I[4] = {};
+	for ( unsigned k = 1 ; k <= p.M ; k++ ) {
+		I[0] += f[1][k] * f[1][k];
+		I[1] += f[2][k] * f[2][k];
+		I[2] += f[3][k] * f[3][k];
+		I[3] += f[4][k] * f[4][k];
+	}
+	float total = I[0] + I[1] + I[2] + I[3];
+	out << "\"Z Phy " << I[0]/total << ' ' << I[1]/total << ' ' << I[2]/total << ' ' << I[3]/total << std::endl;
 	for ( unsigned k = 1 ; k <= p.M ; k++ ) {
 		out << ( k - 1.0 ) / ( p.M - 1.0 )  << ' ' << -pot[k] * p.Eo << ' '
 			<< f[1][k] << ' '
@@ -580,7 +590,19 @@ float SQWHSolver::get_intensity(float **f, unsigned n0) const
 	return fabs(I) / (3 * p.M);
 }
 
-void SQWHSolver::save_levels(const std::string& filename, bool transitions) const
+float SQWHSolver::get_mixing(float **f, unsigned spin) const
+{
+	float I[4] = {};
+	for ( unsigned k = 1 ; k <= p.M ; k++ ) {
+		I[0] += f[1][k] * f[1][k];
+		I[1] += f[2][k] * f[2][k];
+		I[2] += f[3][k] * f[3][k];
+		I[3] += f[4][k] * f[4][k];
+	}
+	return 1 - I[spin] / (I[0] + I[1] + I[2] + I[3]);
+}
+
+void SQWHSolver::save_levels(const std::string& filename, bool with_transitions, bool with_mixing) const
 {
 	const char* spin_label[] = {"hm", "lm", "lp", "hp"};
 	std::ofstream out( filename.c_str(), std::ios::trunc );
@@ -589,10 +611,13 @@ void SQWHSolver::save_levels(const std::string& filename, bool transitions) cons
 	for (unsigned l = 0; l < p.NL; ++l)
 		for ( unsigned spin = 0; spin < 4; ++spin ) {
 			out << " L" << (char)('0' + l) << spin_label[spin];
-			if (transitions) {
-				out << " IL" << (char)('0' + l) << spin_label[spin]
+			if (with_transitions) {
+				out << " iL" << (char)('0' + l) << spin_label[spin]
 					<< ((l + spin) % 4 < 2 ? "s-" : "s+") // polarization
 					<< ((l + spin) % 2 < 1 ? "e-" : "e+");// electron spin
+			}
+			if (with_mixing) {
+				out << " xL" << (char)('0' + l) << spin_label[spin];
 			}
 		}
 	out << std::endl;
@@ -601,11 +626,14 @@ void SQWHSolver::save_levels(const std::string& filename, bool transitions) cons
 		for (unsigned l = 0; l < p.NL; ++l)
 			for ( unsigned spin = 0; spin < 4; ++spin ) {
 				float E = sol_e[spin][l][b];
-				if (transitions)
+				if (with_transitions)
 					E += b * p.Bstep * (p.e_cyc + (((l + spin) % 2) - .5f) * p.e_spin);
 				out << ' ' << E * p.Eo;
-				if (transitions)
+				if (with_transitions)
 					out << ' ' << get_intensity(sol_f[spin][l][b], l + spin);
+				if (with_mixing)
+					out << ' ' << get_mixing(sol_f[spin][l][b], spin);
+					
 			}
 		out << std::endl;
 	}

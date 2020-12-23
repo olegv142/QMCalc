@@ -54,7 +54,7 @@ protected:
 
 	void save_wavefunction(float **f, const std::string& filename) const;
 	void save_wavefunctions(unsigned n, unsigned b, const std::string& bname) const;
-	void save_levels(const std::string& filename, bool transitions) const;
+	void save_levels(const std::string& filename, bool with_transitions, bool with_mixing) const;
 
 	static void eqe_cb(int k, int* idx, float **s, float **y, void* ctx);
 	static void eqh_cb(int k, int* idx, float **s, float **y, void* ctx);
@@ -65,6 +65,7 @@ protected:
 	float barrier_integral(float const fb[8], float E) const;
 	void  solution_normalize(float **f, float e);
 	float get_intensity(float **f, unsigned n0) const;
+	float get_mixing(float **f, unsigned spin) const;
 
 	struct SQWHParams p; // Model parameters
 
